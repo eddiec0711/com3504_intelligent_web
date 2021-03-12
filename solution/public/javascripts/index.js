@@ -1,6 +1,6 @@
 let name = null;
 let roomNo = null;
-let socket=null;
+let socket= io();
 
 
 /**
@@ -12,6 +12,20 @@ function init() {
     // it sets up the interface so that userId and room are selected
     document.getElementById('initial_form').style.display = 'block';
     document.getElementById('chat_interface').style.display = 'none';
+
+    socket.on('joined', function(room, userId){
+        if(userId === name){
+            hideLoginInterface(room, userId)
+        }else{
+            writeOnHistory('<b>' + userId + ' ' +'</b>' + 'joined room ' + room);
+        }
+    });
+
+    socket.on('chat', function(room, userId, chatText){
+        let who = userId
+        if(userId === name) who = 'Me';
+        writeOnHistory('<b>' + who + ': ' +'</b>' + chatText)
+    });
 
     //@todo here is where you should initialise the socket operations as described in teh lectures (room joining, chat message receipt etc.)
 }
@@ -32,7 +46,8 @@ function generateRoom() {
  */
 function sendChatText() {
     let chatText = document.getElementById('chat_input').value;
-    // @todo send the chat message
+    socket.emit('chat', roomNo, name, chatText)
+    console.log("sending message: " + chatText)
 }
 
 /**
@@ -45,6 +60,7 @@ function connectToRoom() {
     let imageUrl= document.getElementById('image_url').value;
     if (!name) name = 'Unknown-' + Math.random();
     //@todo join the room
+    socket.emit('create or join', roomNo, name);
     initCanvas(socket, imageUrl);
     hideLoginInterface(roomNo, name);
 }
@@ -55,6 +71,7 @@ function connectToRoom() {
  * @param text: the text to append
  */
 function writeOnHistory(text) {
+    console.log("Sending history " + text)
     if (text==='') return;
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
