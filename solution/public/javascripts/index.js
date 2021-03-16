@@ -1,5 +1,6 @@
 let name = null;
 let roomNo = null;
+let imageUrl = null;
 let socket= io();
 
 
@@ -27,7 +28,13 @@ function init() {
         writeOnHistory('<b>' + who + ': ' +'</b>' + chatText)
     });
 
-    //@todo here is where you should initialise the socket operations as described in teh lectures (room joining, chat message receipt etc.)
+    //check for support
+    if ('indexedDB' in window) {
+        initDatabase();
+    }
+    else {
+        console.log('This browser doesn\'t support IndexedDB');
+    }
 }
 
 /**
@@ -48,6 +55,8 @@ function sendChatText() {
     let chatText = document.getElementById('chat_input').value;
     socket.emit('chat', roomNo, name, chatText)
     console.log("sending message: " + chatText)
+
+    storeCachedData(roomNo, imageUrl, chatText)
 }
 
 /**
@@ -57,12 +66,13 @@ function sendChatText() {
 function connectToRoom() {
     roomNo = document.getElementById('roomNo').value;
     name = document.getElementById('name').value;
-    let imageUrl= document.getElementById('image_url').value;
+    imageUrl= document.getElementById('image_url').value;
     if (!name) name = 'Unknown-' + Math.random();
     //@todo join the room
     socket.emit('create or join', roomNo, name);
     initCanvas(socket, imageUrl);
     hideLoginInterface(roomNo, name);
+    // loadData(roomNo, imageUrl);
 }
 
 /**
