@@ -1,4 +1,4 @@
-let name = null;
+let userName = null;
 let roomNo = null;
 let imageUrl = null;
 let socket= io();
@@ -15,26 +15,33 @@ function init() {
     document.getElementById('chat_interface').style.display = 'none';
 
     socket.on('joined', function(room, userId){
-        if(userId === name){
-            hideLoginInterface(room, userId)
-        }else{
-            writeOnHistory('<b>' + userId + ' ' +'</b>' + 'joined room ' + room);
+        if (userId === userName) {
+            hideLoginInterface(room, userId);
         }
+        else {
+            writeOnHistory('<b>' + userId + ' ' + '</b>' + 'joined room ' + room);
+        }
+        localStorage.setItem('room', room);
+        localStorage.setItem('userName', userId);
     });
 
     socket.on('chat', function(room, userId, chatText){
-        let who = userId
-        if(userId === name) who = 'Me';
-        writeOnHistory('<b>' + who + ': ' +'</b>' + chatText)
+        let who = userId;
+        if (userId === userName) who = 'Me';
+
+        var text = '<b>' + who + ': ' +'</b>' + chatText;
+        writeOnHistory(text);
+        storeCachedData(roomNo, imageUrl, text);
     });
 
-    //check for support
+    //check for db support
     if ('indexedDB' in window) {
         initDatabase();
     }
     else {
         console.log('This browser doesn\'t support IndexedDB');
     }
+    loadData();
 }
 
 /**
@@ -53,10 +60,8 @@ function generateRoom() {
  */
 function sendChatText() {
     let chatText = document.getElementById('chat_input').value;
-    socket.emit('chat', roomNo, name, chatText)
-    console.log("sending message: " + chatText)
-
-    storeCachedData(roomNo, imageUrl, chatText)
+    socket.emit('chat', roomNo, userName, chatText);
+    console.log("sending message: " + chatText);
 }
 
 /**
@@ -65,14 +70,12 @@ function sendChatText() {
  */
 function connectToRoom() {
     roomNo = document.getElementById('roomNo').value;
-    name = document.getElementById('name').value;
+    userName = document.getElementById('name').value;
     imageUrl= document.getElementById('image_url').value;
-    if (!name) name = 'Unknown-' + Math.random();
-    //@todo join the room
-    socket.emit('create or join', roomNo, name);
+    if (!userName) userName = 'Unknown-' + Math.random();
+    socket.emit('create or join', roomNo, userName);
     initCanvas(socket, imageUrl);
-    hideLoginInterface(roomNo, name);
-    // loadData(roomNo, imageUrl);
+    hideLoginInterface(roomNo, userName);
 }
 
 /**
@@ -81,12 +84,13 @@ function connectToRoom() {
  * @param text: the text to append
  */
 function writeOnHistory(text) {
-    console.log("Sending history " + text)
+    console.log("Sending history " + text);
     if (text==='') return;
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
     paragraph.innerHTML = text;
     history.appendChild(paragraph);
+
     // scroll to the last element
     history.scrollTop = history.scrollHeight;
     document.getElementById('chat_input').value = '';
@@ -104,3 +108,24 @@ function hideLoginInterface(room, userId) {
     document.getElementById('in_room').innerHTML= ' '+room;
 }
 
+async function loadData() {
+    refreshChatHistory();
+    var user = localStorage.getItem('userName');
+    var room = localStorage.getItem('room');
+    if (room) {
+        try {
+            let cachedData = await getCachedData(room);
+            hideLoginInterface(room, user);
+            for (let chat of cachedData.chatHistory) {
+                writeOnHistory(chat);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
+
+function refreshChatHistory() {
+    if (document.getElementById('history')!=null)
+        document.getElementById('history').innerHTML='';
+}

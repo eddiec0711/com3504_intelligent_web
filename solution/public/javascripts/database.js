@@ -8,7 +8,7 @@ const CHAT_STORE_NAME= 'store_chat';
  */
 async function initDatabase(){
     if (!db) {
-        db = await idb.openDB(CHAT_DB_NAME, 2, {
+        db = await idb.openDB(CHAT_DB_NAME, 1, {
             upgrade(upgradeDb, oldVersion, newVersion) {
                 if (!upgradeDb.objectStoreNames.contains(CHAT_STORE_NAME)) {
                     let chatDB = upgradeDb.createObjectStore(CHAT_STORE_NAME, {
@@ -16,8 +16,6 @@ async function initDatabase(){
                         autoIncrement: true
                     });
                     chatDB.createIndex('room', 'room', {unique: false});
-                    chatDB.createIndex('image', 'image', {unique: false});
-                    chatDB.createIndex('chatHistory', 'chatHistory', {unique: false, multiEntry: true});
                 }
             }
         });
@@ -26,12 +24,11 @@ async function initDatabase(){
 }
 
 /**
- * it saves the content for a chat in localStorage
+ * it saves the content for a room in localStorage
  * @param room
  * @param chatObject
  */
 async function storeCachedData(roomNo, imageUrl, chatText) {
-    console.log('inserting: '+ chatText );
     if (!db)
         await initDatabase();
     if (db) {
@@ -39,10 +36,10 @@ async function storeCachedData(roomNo, imageUrl, chatText) {
             let tx = await db.transaction(CHAT_STORE_NAME, 'readwrite');
             let store = await tx.objectStore(CHAT_STORE_NAME);
             let index = await store.index('room');
-            let record = await index.get([roomNo, imageUrl]);
+            let record = await index.get(roomNo);
+
             if (record === undefined) {
                 await store.put({room: roomNo, image: imageUrl, chatHistory: [chatText]})
-                console.log("chatroom initialized")
             } else {
                 record.chatHistory = record.chatHistory.concat(chatText);
                 await store.put(record)
@@ -50,43 +47,29 @@ async function storeCachedData(roomNo, imageUrl, chatText) {
             await tx.complete;
         } catch(error) {
             console.log(error);
-            // localStorage.setItem(roomNo, JSON.stringify(chatText));
         };
     }
-    else localStorage.setItem(roomNo, JSON.stringify(chatText));
 }
 
 /**
  * it retrieves the chat data for a room from the database
- * @param room
- * @param image
+ * @param room\
  * @returns {*}
  */
-async function getCachedData(roomNo, imageUrl) {
+async function getCachedData(roomNo) {
     if (!db)
         await initDatabase();
     if (db) {
+        console.log('fetching ' + roomNo);
         try {
-            console.log('fetching: ' + roomNo);
             let tx = db.transaction(CHAT_STORE_NAME, 'readonly');
             let store = await tx.objectStore(CHAT_STORE_NAME);
-            let index = await store.index('room', 'imageUrl');
-            let readingsList = await index.get([roomNo, imageUrl]);
+            let index = await store.index('room');
+            let record = await index.get(roomNo);
             await tx.complete;
-            let finalResults=[];
-            if (readingsList && readingsList.length > 0) {
-                finalResults.push(readingsList);
-                return finalResults;
-            }
+            return record;
         } catch (error) {
             console.log(error);
         }
-    } else {
-        const value = localStorage.getItem(roomNo);
-        let finalResults=[];
-        if (value == null)
-            return finalResults;
-        else finalResults.push(value);
-        return finalResults;
     }
 }
