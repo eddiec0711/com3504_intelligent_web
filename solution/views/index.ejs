@@ -27,7 +27,13 @@
         <p style=" width: 100%"><label for="image_url"> Image (URL) </label><input type="text" id="image_url" name="image_url"></p>
         <button id="connect" onclick="connectToRoom()">Connect</button>
     </form>
+    <video id="cam" style="display:none;" autoplay></video>
+    <canvas id="frame" width="1280" height="500"style="display:none;"></canvas>
+    <button id="shotBtn" onclick="takePic()">Take new picture</button>
+    <button id="uploadBtn" onclick="savePic()" style="display:none;">Save/upload picture</button>
+
 </div>
+
 <div id="chat_interface" style="display: none">
     <div>
     <p><div id="who_you_are" style="display: inline" style="height: 10vh"></div>, you are in room: <div id="in_room" style="display: inline"></div>
