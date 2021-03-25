@@ -47,7 +47,6 @@ function init() {
         console.log('This browser doesn\'t support IndexedDB');
     }
     loadData();
-
 }
 
 function takePic() {
@@ -101,8 +100,9 @@ function sendImage(userId, imageBlob) {
         },
         error: function (err) {
             alert('Error: ' + err.status + ':' + err.statusText);
-    }
-});
+        }
+    });
+}
 
 /**
  * called to generate a random room number
