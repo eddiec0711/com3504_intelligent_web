@@ -12,7 +12,7 @@ let color = 'red', thickness = 4;
  * @param imageUrl teh image url to download
  */
 function initCanvas(sckt, imageUrl) {
-    socket = sckt;
+    let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
     let canvas = $('#canvas');
@@ -37,8 +37,10 @@ function initCanvas(sckt, imageUrl) {
         if (e.type === 'mousemove') {
             if (flag) {
                 drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
+                //console.log("Canvas drawing detected")
                 // @todo if you draw on the canvas, you may want to let everyone know via socket.io (socket.emit...)  by sending them
-                // room, userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness
+                //socket.emit('draw', userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
+                get_drawing(userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
             }
         }
     });
@@ -53,6 +55,18 @@ function initCanvas(sckt, imageUrl) {
     });
 
     // @todo here you want to capture the event on the socket when someone else is drawing on their canvas (socket.on...)
+    function get_drawing(userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness){
+        if (userId === userName){
+            console.log("Receiving drawing from other user")
+            let ctx = canvas[0].getContext('2d');
+            drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
+            //storeCachedData(roomNo, imageUrl, ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
+        }
+        else{
+            console.log("I'm the one drawing")
+        }
+    }
+
     // I suggest that you receive userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness
     // and then you call
     //     let ctx = canvas[0].getContext('2d');
@@ -122,7 +136,7 @@ function drawImageScaled(img, canvas, ctx) {
  * @param thickness of the line
  */
 function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY, color, thickness) {
-    //get the ration between the current canvas and the one it has been used to draw on the other comuter
+    //get the ration between the current canvas and the one it has been used to draw on the other computer
     let ratioX= canvas.width/canvasWidth;
     let ratioY= canvas.height/canvasHeight;
     // update the value of the points to draw

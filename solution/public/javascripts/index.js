@@ -4,7 +4,7 @@ let imageUrl = null;
 let socket= io();
 
 let camera = null;
-let canvas = null;
+//let canvas = null;
 let localMediaStream = null;
 let ctx;
 

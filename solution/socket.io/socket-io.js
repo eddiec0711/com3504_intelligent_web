@@ -10,6 +10,10 @@ exports.init = function(io) {
          io.sockets.to(room).emit('chat', room, userId, chatText);
      });
 
+     socket.on('draw', function(room, userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness){
+         io.sockets.to(room).emit('draw', userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
+     });
+
      socket.on('disconnect', function (){
          console.log('someone disconnected')
      });
