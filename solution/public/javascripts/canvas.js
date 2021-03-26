@@ -39,8 +39,10 @@ function initCanvas(sckt, imageUrl) {
                 drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
                 //console.log("Canvas drawing detected")
                 // @todo if you draw on the canvas, you may want to let everyone know via socket.io (socket.emit...)  by sending them
-                //socket.emit('draw', userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
-                get_drawing(userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
+                console.log("emitting")
+                socket.emit('draw', room, userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
+
+                //get_drawing(userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
             }
         }
     });
@@ -50,22 +52,23 @@ function initCanvas(sckt, imageUrl) {
         let c_width = canvas.width();
         let c_height = canvas.height();
         ctx.clearRect(0, 0, c_width, c_height);
+        socket.emit('clear')
         // @todo if you clear the canvas, you want to let everyone know via socket.io (socket.emit...)
 
     });
 
     // @todo here you want to capture the event on the socket when someone else is drawing on their canvas (socket.on...)
-    function get_drawing(userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness){
-        if (userId === userName){
+    socket.on('draw', function(room, userId, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness){
+        if (userId !== userName){
             console.log("Receiving drawing from other user")
             let ctx = canvas[0].getContext('2d');
-            drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
+            drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness)
             //storeCachedData(roomNo, imageUrl, ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
         }
         else{
             console.log("I'm the one drawing")
         }
-    }
+    });
 
     // I suggest that you receive userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness
     // and then you call
@@ -151,4 +154,8 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.lineWidth = thickness;
     ctx.stroke();
     ctx.closePath();
+}
+
+function  clearCanvas(){
+
 }
