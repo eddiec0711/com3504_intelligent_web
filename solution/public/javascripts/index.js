@@ -3,10 +3,6 @@ let roomNo = null;
 let imageUrl = null;
 let socket= io();
 
-let camera = null;
-//let canvas = null;
-let localMediaStream = null;
-let ctx;
 
 /**
  * called by <body onload>
@@ -47,61 +43,6 @@ function init() {
         console.log('This browser doesn\'t support IndexedDB');
     }
     loadData();
-}
-
-function takePic() {
-    prepareVideo();
-    document.getElementById('shotBtn').style.display = 'none';
-    document.getElementById('uploadBtn').style.display = 'none';
-    camera.style.display = 'block';
-    canvas.style.display = 'none';
-}
-
-function prepareVideo() {
-    camera = document.getElementById('cam');
-    canvas = document.getElementById('frame');
-    ctx = canvas.getContext('2d');
-    camera.addEventListener('click', snapshot, false);
-    navigator.getUserMedia({video: {facingMode: 'user'}}, function(stream) {
-        // video.src = window.URL.createObjectURL(stream);
-        camera.srcObject = stream;
-        localMediaStream = stream;
-    }, errorCallback);
-}
-
-function errorCallback() {console.log('error');}
-
-function snapshot() {
-    if (localMediaStream) {
-        canvas.style.display = 'block';
-        ctx.drawImage(camera, 0, 0);
-        // document.getElementById('photo').src = canvas.toDataURL('image/png');
-        camera.style.display = 'none';
-        document.getElementById('shotBtn').style.display = 'block';
-        document.getElementById('uploadBtn').style.display = 'block';
-    }
-}
-
-function savePic() {
-    console.log('saving picture');
-}
-
-function sendImage(userId, imageBlob) {
-    var data = {userId: userId, imageBlob: imageBlob};
-    $.ajax({
-        dataType: "json",
-        url: '/uploadpicture',
-        type: "POST",
-        data: data,
-        success: function (data) {
-            token = data.token;
-            // go to next picture taking
-            location.reload();
-        },
-        error: function (err) {
-            alert('Error: ' + err.status + ':' + err.statusText);
-        }
-    });
 }
 
 /**
