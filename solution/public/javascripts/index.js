@@ -1,6 +1,6 @@
-let userName = null;
-let roomNo = null;
-let imageUrl = null;
+let userName;
+let roomNo;
+let imageUrl;
 let socket= io();
 
 
@@ -11,19 +11,33 @@ let socket= io();
  */
 function init() {
 
-    // it sets up the interface so that userId and room are selected
+    // setup interface to allow user to join room
     document.getElementById('initial_form').style.display = 'block';
     document.getElementById('chat_interface').style.display = 'none';
 
+    // check for db support
+    if ('indexedDB' in window) {
+        initDatabase();
+    }
+    else {
+        console.log('This browser doesn\'t support IndexedDB');
+    }
+
+    // load data upon reloading the page
+    loadData();
+
+    // socket communications
     socket.on('joined', function(room, userId){
         if (userId === userName) {
             hideLoginInterface(room, userId);
+
+            localStorage.setItem('room', room);
+            localStorage.setItem('userName', userId);
+            localStorage.setItem('image', imageUrl);
         }
         else {
             writeOnHistory('<b>' + userId + ' ' + '</b>' + 'joined room ' + room);
         }
-        localStorage.setItem('room', room);
-        localStorage.setItem('userName', userId);
     });
 
     socket.on('chat', function(room, userId, chatText){
@@ -32,17 +46,9 @@ function init() {
 
         var text = '<b>' + who + ': ' +'</b>' + chatText;
         writeOnHistory(text);
-        storeCachedData(roomNo, imageUrl, text);
+        storeChatData(roomNo, text);
     });
 
-    //check for db support
-    if ('indexedDB' in window) {
-        initDatabase();
-    }
-    else {
-        console.log('This browser doesn\'t support IndexedDB');
-    }
-    loadData();
 }
 
 /**
@@ -70,13 +76,17 @@ function sendChatText() {
  * interface
  */
 function connectToRoom() {
+    // variables definition
     roomNo = document.getElementById('roomNo').value;
     userName = document.getElementById('name').value;
-    imageUrl= document.getElementById('image_url').value;
     if (!userName) userName = 'Unknown-' + Math.random();
-    socket.emit('create or join', roomNo, userName);
+    imageUrl= document.getElementById('image_url').value;
+
+    // setup room interface
     initCanvas(socket, imageUrl);
     hideLoginInterface(roomNo, userName);
+
+    socket.emit('create or join', roomNo, userName);
 }
 
 /**
@@ -85,7 +95,7 @@ function connectToRoom() {
  * @param text: the text to append
  */
 function writeOnHistory(text) {
-    console.log("Sending history " + text);
+    // add new message to interface
     if (text==='') return;
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
@@ -109,14 +119,32 @@ function hideLoginInterface(room, userId) {
     document.getElementById('in_room').innerHTML= ' '+room;
 }
 
+/**
+ * hides chat interface and go back to initial form
+ * reset localStorage to prevent reload
+ */
+function hideChatInterface() {
+    document.getElementById('initial_form').style.display = 'block';
+    document.getElementById('chat_interface').style.display = 'none';
+    localStorage.clear();
+}
+
 async function loadData() {
     refreshChatHistory();
-    var user = localStorage.getItem('userName');
-    var room = localStorage.getItem('room');
-    if (room) {
+
+    // re-initiate global variables and retrieve data
+    userName = localStorage.getItem('userName');
+    roomNo = localStorage.getItem('room');
+    imageUrl = localStorage.getItem('image');
+
+    if (roomNo) {
         try {
-            let cachedData = await getCachedData(room);
-            hideLoginInterface(room, user);
+            hideLoginInterface(roomNo, userName);
+
+            let cachedData = await getCachedData(roomNo);
+
+            initCanvas(socket, imageUrl, cachedData.canvas, true);
+
             for (let chat of cachedData.chatHistory) {
                 writeOnHistory(chat);
             }

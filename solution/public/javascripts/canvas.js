@@ -1,8 +1,6 @@
 /**
  * this file contains the functions to control the drawing on the canvas
  */
-let room;
-let userId;
 let color = 'red', thickness = 4;
 
 /**
@@ -11,7 +9,7 @@ let color = 'red', thickness = 4;
  * @param sckt the open socket to register events on
  * @param imageUrl teh image url to download
  */
-function initCanvas(sckt, imageUrl) {
+function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
     let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
@@ -19,7 +17,15 @@ function initCanvas(sckt, imageUrl) {
     let cvx = document.getElementById('canvas');
     let img = document.getElementById('image');
     let ctx = cvx.getContext('2d');
-    img.src = imageUrl;
+
+    if (reload) {
+        console.log('loading image from indexeddb')
+        img.src = imageBlob;
+    }
+    else {
+        console.log('loading image from url provided')
+        img.src = imageUrl;
+    }
 
     // event on the canvas when the mouse is on it
     canvas.on('mousemove mousedown mouseup mouseout', function (e) {
@@ -30,18 +36,21 @@ function initCanvas(sckt, imageUrl) {
         if (e.type === 'mousedown') {
             flag = true;
         }
-        if (e.type === 'mouseup' || e.type === 'mouseout') {
+        if (e.type === 'mouseout') {
             flag = false;
+        }
+        if (e.type === 'mouseup') {
+            flag = false;
+            saveAnnotation(cvx);
         }
         // if the flag is up, the movement of the mouse draws on the canvas
         if (e.type === 'mousemove') {
             if (flag) {
                 drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
-                //console.log("Canvas drawing detected")
+
                 // @todo if you draw on the canvas, you may want to let everyone know via socket.io (socket.emit...)  by sending them
                 console.log("emitting")
-                socket.emit('draw', room, userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
-
+                socket.emit('draw', roomNo, userName, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
                 //get_drawing(userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
             }
         }
@@ -58,12 +67,11 @@ function initCanvas(sckt, imageUrl) {
     });
 
     // @todo here you want to capture the event on the socket when someone else is drawing on their canvas (socket.on...)
-    socket.on('draw', function(room, userId, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness){
+    socket.on('draw', function(roomNo, userId, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness){
         if (userId !== userName){
             console.log("Receiving drawing from other user")
             let ctx = canvas[0].getContext('2d');
             drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness)
-            //storeCachedData(roomNo, imageUrl, ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
         }
         else{
             console.log("I'm the one drawing")
@@ -97,6 +105,13 @@ function initCanvas(sckt, imageUrl) {
                 cvx.height = canvas.height = img.clientHeight*ratio;
                 // draw the image onto the canvas
                 drawImageScaled(img, cvx, ctx);
+
+                // insert image in base64 format into indexeddb
+                if (!reload) {
+                    let imageBlob = cvx.toDataURL();
+                    storeImageData(roomNo, imageBlob);
+                }
+
                 // hide the image element as it is not needed
                 img.style.display = 'none';
             }
@@ -106,7 +121,7 @@ function initCanvas(sckt, imageUrl) {
 
 /**
  * called when it is required to draw the image on the canvas. We have resized the canvas to the same image size
- * so ti is simpler to draw later
+ * so it is simpler to draw later
  * @param img
  * @param canvas
  * @param ctx
@@ -119,8 +134,6 @@ function drawImageScaled(img, canvas, ctx) {
     let x = (canvas.width / 2) - (img.width / 2) * scale;
     let y = (canvas.height / 2) - (img.height / 2) * scale;
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-
-
 }
 
 
@@ -140,13 +153,13 @@ function drawImageScaled(img, canvas, ctx) {
  */
 function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY, color, thickness) {
     //get the ration between the current canvas and the one it has been used to draw on the other computer
-    let ratioX= canvas.width/canvasWidth;
-    let ratioY= canvas.height/canvasHeight;
+    let ratioX = canvas.width / canvasWidth;
+    let ratioY = canvas.height / canvasHeight;
     // update the value of the points to draw
-    prevX*=ratioX;
-    prevY*=ratioY;
-    currX*=ratioX;
-    currY*=ratioY;
+    prevX *= ratioX;
+    prevY *= ratioY;
+    currX *= ratioX;
+    currY *= ratioY;
     ctx.beginPath();
     ctx.moveTo(prevX, prevY);
     ctx.lineTo(currX, currY);
@@ -156,6 +169,12 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.closePath();
 }
 
-function  clearCanvas(){
 
+/**
+ * save annotation to indexeddb
+ * @param cvx
+ */
+async function saveAnnotation(cvx) {
+    let blob = cvx.toDataURL();
+    await storeImageData(roomNo, blob);
 }

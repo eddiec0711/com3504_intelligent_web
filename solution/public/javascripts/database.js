@@ -24,26 +24,28 @@ async function initDatabase(){
 }
 
 /**
- * it saves the content for a room in localStorage
- * @param room
- * @param chatObject
+ * store chat data
+ * @param roomNo
+ * @param chatText
  */
-async function storeCachedData(roomNo, imageUrl, chatText) {
+async function storeChatData(roomNo, chatText) {
     if (!db)
         await initDatabase();
     if (db) {
-        try{
+        try {
             let tx = await db.transaction(CHAT_STORE_NAME, 'readwrite');
             let store = await tx.objectStore(CHAT_STORE_NAME);
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
-            if (record === undefined) {
-                await store.put({room: roomNo, image: imageUrl, chatHistory: [chatText]})
-            } else {
-                record.chatHistory = record.chatHistory.concat(chatText);
-                await store.put(record)
+            if (record.chatHistory === undefined) {
+                record.chatHistory = [chatText];
             }
+            else {
+                record.chatHistory = record.chatHistory.concat(chatText);
+            }
+            await store.put(record)
+
             await tx.complete;
         } catch(error) {
             console.log(error);
@@ -52,8 +54,37 @@ async function storeCachedData(roomNo, imageUrl, chatText) {
 }
 
 /**
- * it retrieves the chat data for a room from the database
- * @param room\
+ * store image
+ * @param roomNo
+ * @param imageBlob
+ */
+async function storeImageData(roomNo, imageBlob) {
+    if (!db)
+        await initDatabase();
+    if (db) {
+        try {
+            let tx = await db.transaction(CHAT_STORE_NAME, 'readwrite');
+            let store = await tx.objectStore(CHAT_STORE_NAME);
+            let index = await store.index('room');
+            let record = await index.get(roomNo);
+
+            if (record === undefined) {
+                await store.put({room: roomNo, canvas: imageBlob});
+            } else {
+                record.canvas = imageBlob;
+                await store.put(record);
+            }
+
+            await tx.complete;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
+
+/**
+ * retrieve the chat data for a room from the database
+ * @param roomNo
  * @returns {*}
  */
 async function getCachedData(roomNo) {
