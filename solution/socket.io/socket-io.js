@@ -12,8 +12,12 @@ exports.init = function(io) {
 
      socket.on('draw', function(room, userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness){
          console.log("socket receiving")
-         io.sockets.to(room).emit('drew', room, userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness);
+         io.sockets.to(room).emit('draw', room, userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness);
      });
+
+     socket.on('clear', function(room){
+         io.sockets.to(room).emit('clear')
+     })
 
      socket.on('disconnect', function (){
          console.log('someone disconnected')

@@ -48,7 +48,6 @@ function init() {
         writeOnHistory(text);
         storeChatData(roomNo, text);
     });
-
 }
 
 /**

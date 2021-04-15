@@ -57,10 +57,8 @@ function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
     });
 
     // this is code left in case you need to  provide a button clearing the canvas (it is suggested that you implement it)
-    $('.canvas-clear').on('click', function (e) {
-        let c_width = canvas.width();
-        let c_height = canvas.height();
-        ctx.clearRect(0, 0, c_width, c_height);
+    $(document.getElementById("canvas-clear")).on('click', function () {
+        clearCanvas(img, ctx, cvx);
         socket.emit('clear')
         // @todo if you clear the canvas, you want to let everyone know via socket.io (socket.emit...)
 
@@ -78,12 +76,17 @@ function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
         }
     });
 
+    socket.on('clear', function(){
+        clearCanvas(img, ctx, cvx);
+    });
+
     // I suggest that you receive userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness
     // and then you call
     //     let ctx = canvas[0].getContext('2d');
     //     drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
 
     // this is called when the src of the image is loaded
+
     // this is an async operation as it may take time
     img.addEventListener('load', () => {
         // it takes time before the image size is computed and made available
@@ -128,12 +131,26 @@ function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
  */
 function drawImageScaled(img, canvas, ctx) {
     // get the scale
+    console.log(img.width, img.height, canvas.width, canvas.height)
     let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
     // get the top left position of the image
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let x = (canvas.width / 2) - (img.width / 2) * scale;
     let y = (canvas.height / 2) - (img.height / 2) * scale;
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+}
+
+function  drawImageUnscaled(img, canvas, ctx){
+    // get the scale
+    console.log(img.width, img.height, canvas.width, canvas.height)
+    img.width = canvas.width;
+    img.height = canvas.height;
+    let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+    // get the top left position of the image
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let x = (canvas.width/2) - (img.width/2) * scale;
+    let y = (canvas.height/2) - (img.height/2) * scale;
+    ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
 
 
@@ -169,6 +186,12 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.closePath();
 }
 
+function clearCanvas(img, ctx, cvx){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawImageUnscaled(img, canvas, ctx)
+    saveAnnotation(cvx);
+
+}
 
 /**
  * save annotation to indexeddb
