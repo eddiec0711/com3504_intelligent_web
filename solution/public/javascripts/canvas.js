@@ -57,9 +57,9 @@ function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
     });
 
     // this is code left in case you need to  provide a button clearing the canvas (it is suggested that you implement it)
-    $(document.getElementById("canvas-clear")).on('click', function () {
+    $(document.getElementById("canvas-clear")).on('click', function (e) {
         clearCanvas(img, ctx, cvx);
-        socket.emit('clear')
+        socket.emit('clear', roomNo)
         // @todo if you clear the canvas, you want to let everyone know via socket.io (socket.emit...)
 
     });
@@ -76,14 +76,9 @@ function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
         }
     });
 
-    socket.on('clear', function(){
+    socket.on('clear', function(roomNo){
         clearCanvas(img, ctx, cvx);
     });
-
-    // I suggest that you receive userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness
-    // and then you call
-    //     let ctx = canvas[0].getContext('2d');
-    //     drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness)
 
     // this is called when the src of the image is loaded
 
@@ -140,11 +135,17 @@ function drawImageScaled(img, canvas, ctx) {
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
+/**
+ * called when the image needs to be redrawn
+ * @param img
+ * @param canvas
+ * @param ctx
+ */
 function  drawImageUnscaled(img, canvas, ctx){
-    // get the scale
-    console.log(img.width, img.height, canvas.width, canvas.height)
+    // make the image size match the canvas
     img.width = canvas.width;
     img.height = canvas.height;
+    // get the scale
     let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
     // get the top left position of the image
     ctx.clearRect(0, 0, canvas.width, canvas.height);

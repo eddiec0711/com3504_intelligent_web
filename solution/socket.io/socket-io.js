@@ -16,7 +16,7 @@ exports.init = function(io) {
      });
 
      socket.on('clear', function(room){
-         io.sockets.to(room).emit('clear')
+         io.sockets.to(room).emit('clear', room)
      })
 
      socket.on('disconnect', function (){
