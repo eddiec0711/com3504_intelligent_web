@@ -191,7 +191,6 @@ function clearCanvas(img, ctx, cvx){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawImageUnscaled(img, canvas, ctx)
     saveAnnotation(cvx);
-
 }
 
 /**

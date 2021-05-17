@@ -34,19 +34,19 @@ router.get('/upload', function(req, res, next) {
 router.post('/upload_image', function(req, res) {
   var targetDirectory = './private/images/';
   var newString = new Date().getTime();
-  // if (!fs.existsSync(targetDirectory)) {
-  //   fs.mkdirSync(targetDirectory);
-  // }
+  if (!fs.existsSync(targetDirectory)) {
+    fs.mkdirSync(targetDirectory);
+  }
   console.log('saving file ' + targetDirectory + newString);
 
   var imageBlob = req.body.imageBlob.replace(/^data:image\/\w+;base64,/, "");
   var buf = Buffer.from(imageBlob, 'base64');
   var filepath = targetDirectory + newString + '.png'
-  // fs.writeFile(filepath, buf, function(err) {
-  //   if (err) {
-  //     console.log(err);
-  //   }
-  // });
+  fs.writeFile(filepath, buf, function(err) {
+    if (err) {
+      console.log(err);
+    }
+  });
 
   res.end(JSON.stringify({path:filepath}));
 });

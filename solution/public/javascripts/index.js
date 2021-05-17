@@ -36,15 +36,14 @@ function init() {
             localStorage.setItem('image', imageUrl);
         }
         else {
-            writeOnHistory('<b>' + userId + ' ' + '</b>' + 'joined room ' + room);
+            writeOnHistory('<b>' + userId + '</b>' + ' ' + 'joined room' + room);
         }
     });
 
     socket.on('chat', function(room, userId, chatText){
         let who = userId;
         if (userId === userName) who = 'Me';
-
-        var text = '<b>' + who + ': ' +'</b>' + chatText;
+        var text = '<b>' + who + '</b>' + ': ' + chatText;
         writeOnHistory(text);
         storeChatData(roomNo, text);
     });
@@ -67,7 +66,6 @@ function generateRoom() {
 function sendChatText() {
     let chatText = document.getElementById('chat_input').value;
     socket.emit('chat', roomNo, userName, chatText);
-    console.log("sending message: " + chatText);
 }
 
 /**
@@ -93,12 +91,12 @@ function connectToRoom() {
  * this is to be called when the socket receives the chat message (socket.on ('message'...)
  * @param text: the text to append
  */
-function writeOnHistory(text) {
+function writeOnHistory(chatText) {
     // add new message to interface
-    if (text==='') return;
+    if (chatText==='') return;
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
-    paragraph.innerHTML = text;
+    paragraph.innerHTML = chatText;
     history.appendChild(paragraph);
 
     // scroll to the last element
@@ -145,7 +143,7 @@ async function loadData() {
             initCanvas(socket, imageUrl, cachedData.canvas, true);
 
             for (let chat of cachedData.chatHistory) {
-                writeOnHistory(chat);
+                writeOnHistory(chat, userName);
             }
         } catch (error) {
             console.log(error);
