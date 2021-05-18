@@ -9,7 +9,7 @@ let socket= io();
  * it initialises the interface and the expected socket messages
  * plus the associated actions
  */
-function init() {
+async function init() {
 
     // setup interface to allow user to join room
     document.getElementById('initial_form').style.display = 'block';
@@ -36,7 +36,8 @@ function init() {
     }
 
     // load data upon reloading the page
-    loadData();
+    await loadData();
+    getPic(null);
 
     // socket communications
     socket.on('joined', function(room, userId){
@@ -48,15 +49,14 @@ function init() {
             localStorage.setItem('image', imageUrl);
         }
         else {
-            writeOnHistory('<b>' + userId + ' ' + '</b>' + 'joined room ' + room);
+            writeOnHistory('<b>' + userId + '</b>' + ' ' + 'joined room' + room);
         }
     });
 
     socket.on('chat', function(room, userId, chatText){
         let who = userId;
         if (userId === userName) who = 'Me';
-
-        var text = '<b>' + who + ': ' +'</b>' + chatText;
+        var text = '<b>' + who + '</b>' + ': ' + chatText;
         writeOnHistory(text);
         storeChatData(roomNo, text);
     });
@@ -79,7 +79,6 @@ function generateRoom() {
 function sendChatText() {
     let chatText = document.getElementById('chat_input').value;
     socket.emit('chat', roomNo, userName, chatText);
-    console.log("sending message: " + chatText);
 }
 
 /**
@@ -105,12 +104,12 @@ function connectToRoom() {
  * this is to be called when the socket receives the chat message (socket.on ('message'...)
  * @param text: the text to append
  */
-function writeOnHistory(text) {
+function writeOnHistory(chatText) {
     // add new message to interface
-    if (text==='') return;
+    if (chatText==='') return;
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
-    paragraph.innerHTML = text;
+    paragraph.innerHTML = chatText;
     history.appendChild(paragraph);
 
     // scroll to the last element
@@ -157,7 +156,7 @@ async function loadData() {
             initCanvas(socket, imageUrl, cachedData.canvas, true);
 
             for (let chat of cachedData.chatHistory) {
-                writeOnHistory(chat);
+                writeOnHistory(chat, userName);
             }
         } catch (error) {
             console.log(error);
@@ -168,6 +167,43 @@ async function loadData() {
 function refreshChatHistory() {
     if (document.getElementById('history')!=null)
         document.getElementById('history').innerHTML='';
+}
+
+function toUpload() {
+    window.location="/image"
+}
+
+function getPic(author) {
+    $.ajax({
+        dataType: "json",
+        url: '/get_image',
+        data: author,
+        type: "POST",
+        success: function (dataR) {
+            listPic(dataR.file)
+        },
+        error: function (err) {
+            console.log('Error: ' + err.status + ':' + err.statusText);
+        }
+    });
+}
+
+function listPic(blobs) {
+    let container = document.getElementById('image_container')
+    for (let blob of blobs) {
+        let img = document.createElement('img');
+        let row = document.createElement('div');
+
+        img.setAttribute('id', 'picture');
+        img.src = blob;
+        img.onclick = function() {
+            let container = document.getElementById('picLink')
+            container.innerHTML = blob;
+        };
+
+        row.appendChild(img);
+        container.appendChild(img);
+    }
 }
 
 

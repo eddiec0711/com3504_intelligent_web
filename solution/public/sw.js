@@ -19,7 +19,7 @@ var urlsToCache =
     'javascripts/canvas.js',
     'javascripts/database.js',
     'javascripts/idb.js',
-    'javascripts/image.js',
+    'javascripts/upload.js',
     'javascripts/index.js',
     'stylesheets/style.css'
 ];
