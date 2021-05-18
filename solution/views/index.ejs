@@ -25,12 +25,15 @@
             <button id="roomNoGenerator" onclick="generateRoom()">Generate Room</button>
         </p>
         <p style=" width: 100%"><label for="image_url"> Image (URL) </label><input type="text" id="image_url" name="image_url"></p>
-        <button id="connect" onclick="connectToRoom()">Connect</button>
+        <div>
+            <button id="connect" onclick="connectToRoom()">Connect</button>
+            <button onclick="toUpload()">Upload Image</button>
+        </div>
     </form>
 
-    <a href="/image">Upload picture</a>
+    <div id="picLink"></div>
+    <div id="image_container"></div>
 </div>
-
 
 
 <div id="chat_interface" style="display: none">

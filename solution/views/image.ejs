@@ -4,25 +4,50 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/javascripts/image.js"></script>
-<!--    <script src="/javascripts/database.js"></script>-->
-<!--    <script src="/javascripts/idb.js"></script>-->
-
+    <script src="/javascripts/upload.js"></script>
 </head>
 
 <body onload="init()">
 
 <div id="initial_form" style="display: block">
     <h1><%= title %></h1>
-    <h5>Click on frame to capture</h5>
-    <video id="camera" autoplay></video>
-    <canvas id="frame" width="1280" height="500"style="display:none;"></canvas>
-    <div id="button-container" style="display:none;">
-        <button id="shotBtn" onclick="takePic()">Take new picture</button>
-        <button id="uploadBtn" onclick="savePic()">Save/upload picture</button>
-    </div>
-    <div id="link"></div>
-    <a href="/">Go back</a>
+    <form onsubmit="return false;">
+        <div>
+            <p style=" width: 100%">
+                <label for="title"> Title </label>
+                <input type="text" id="title" name="title">
+            </p>
+            <p style=" width: 100%">
+                <label for="author"> Author </label>
+                <input type="text" id="author" name="author">
+            </p>
+            <p style=" width: 100%">
+                <label for="description"> Description </label>
+                <textarea id="description" name="description" cols="40" rows="5"></textarea>
+            </p>
+            <p style=" width: 100%">
+                <label for="image_url"> Image (URL) </label>
+                <input type="text" id="image_url" name="image_url">
+                <button onclick="confirmImage()">Confirm</button></p>
+            </p>
+        </div>
+
+<!--        <video id="camera" autoplay></video>-->
+<!--        <canvas id="frame" width="1280" height="500"style="display:none;"></canvas>-->
+<!--        <div id="button-container">-->
+<!--            <button id="shotBtn" onclick="snapshot()">Take new picture</button>-->
+<!--        </div>-->
+
+        <div>
+            <img id="image" width="50%" crossOrigin="anonymous">
+        </div>
+        <div>
+            <button onclick="uploadImage()">Upload</button>
+            <button onclick="goBack()">Go Back</button>
+        </div>
+    </form>
+
+
 </div>
 
 </body>
