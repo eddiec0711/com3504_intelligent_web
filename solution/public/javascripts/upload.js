@@ -4,51 +4,54 @@ let localMediaStream = null;
 let ctx;
 
 function init() {
-    // camera = document.querySelector('video');
-    // canvas = document.querySelector('canvas');
-    // ctx = canvas.getContext('2d');
-    // navigator.getUserMedia({video: {facingMode: 'user'}}, function(stream) {
-    //     camera.srcObject = stream;
-    //     localMediaStream = stream;
-    // }, (err => console.log(err)));
+    camera = document.querySelector('video');
+    canvas = document.querySelector('canvas');
+    ctx = canvas.getContext('2d');
+
+    navigator.getUserMedia({video: {facingMode: 'user'}}, function(stream) {
+        camera.srcObject = stream;
+        localMediaStream = stream;
+    }, (err => console.log(err)));
 }
 
 function snapshot() {
     if (localMediaStream) {
-        canvas.style.display = 'block';
-        ctx.drawImage(camera, 0, 0);
-        camera.style.display = 'none';
+        confirmImage(camera);
     }
 }
 
-function confirmImage() {
-    let imageUrl = document.getElementById('image_url').value
-    document.getElementById('image').src = imageUrl;
+function confirmImage(camera) {
+    if (camera) {
+        loadImage(camera, camera.videoWidth, camera.videoHeight);
+    }
+    else {
+        let img = new Image();
+        img.onload = function() {
+            loadImage(img, img.width, img.height);
+        }
+        img.crossOrigin='anonymous';
+        img.src = document.getElementById('image_url').value
+    }
 }
 
-function imgToBase64() {
-    let img = document.getElementById('image')
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
+function loadImage(elem, elemW, elemH) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.display = 'block';
 
-    let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+    let scale = Math.min(canvas.width / elemW, canvas.height / elemH);
     // get the top left position of the image
-    let x = (canvas.width / 2) - (img.width / 2) * scale;
-    let y = (canvas.height / 2) - (img.height / 2) * scale;
-    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-    let dataURL = canvas.toDataURL();
-
-    return dataURL
+    let x = (canvas.width / 2) - (elemW / 2) * scale;
+    let y = (canvas.height / 2) - (elemH / 2) * scale;
+    ctx.drawImage(elem, x, y, elemW * scale, elemH * scale);
 }
 
-async function uploadImage() {
+function uploadImage() {
     let title = document.getElementById('title').value
     let author = document.getElementById('author').value
     let description = document.getElementById('description').value
 
-    let imageBlob = await imgToBase64()
-    // let imageBlob = await confirmImage();
-    await savePic(imageBlob, title, author, description);
+    let imageBlob = document.getElementById('canvas').toDataURL();
+    savePic(imageBlob, title, author, description);
 }
 
 function savePic(imageBlob, title, author, description) {

@@ -170,7 +170,7 @@ function refreshChatHistory() {
 }
 
 function toUpload() {
-    window.location="/image"
+    window.location="/upload_image"
 }
 
 function getPic(author) {

@@ -9,15 +9,13 @@ router.get('/', function(req, res, next) {
 });
 
 
-router.get('/room', function(req, res, next) {
-  res.render('room', { title: 'Room' });
+/* GET image upload page. */
+router.get('/upload_image', function(req, res, next) {
+  res.render('upload', { title: 'Upload Image' });
 });
 
 
-router.get('/image', function(req, res, next) {
-  res.render('image', { title: 'Upload Image' });
-});
-
+/* POST retrieve images */
 router.post('/get_image', function(req, res) {
     let parent = __dirname + '/../';
     let imageDir = path.join(parent, 'private_access/Images/');
@@ -44,6 +42,8 @@ router.post('/get_image', function(req, res) {
     }
 });
 
+
+/* POST upload image */
 router.post('/upload_image', function(req, res) {
     let parent = __dirname + '/../';
     let imagePath = path.join(parent, 'private_access/Images/');
@@ -58,7 +58,6 @@ router.post('/upload_image', function(req, res) {
     });
 
     // @TODO mongodb.save(imageFile, req.body.title, req.body.author, req.body.description)
-
 
     res.end(JSON.stringify({file:imageFile}));
 
