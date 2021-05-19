@@ -29,8 +29,8 @@ function confirmImage(camera) {
         img.onload = function() {
             loadImage(img, img.width, img.height);
         }
-        img.crossOrigin='anonymous';
         img.src = document.getElementById('image_url').value
+
     }
 }
 
