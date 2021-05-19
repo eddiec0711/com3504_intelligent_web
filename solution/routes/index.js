@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var path = require('path');
 var fs = require('fs');
+var mongoose = require('mongoose');
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
 
 
 /* GET home page. */
@@ -44,7 +47,6 @@ router.post('/get_image', function(req, res) {
     async function readImage(file) {
         let imageBase64 = await fs.readFileSync(file, 'base64')
         let blob = "data:image/jpeg;base64," + imageBase64;
-
         return blob;
     }
 });
@@ -64,16 +66,16 @@ router.post('/upload_image', function(req, res) {
         }
     });
 
-    // MongoClient.connect(url, function(err, db) {
-    //     if (err) throw err;
-    //     var dbo = db.db("g11");
-    //     var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
-    //     dbo.collection("image").insertOne(myobj, function(err, res) {
-    //       if (err) throw err;
-    //       console.log("1 image uploaded to mongodb");
-    //       db.close();
-    //     });
-    //   });
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("g11");
+        var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
+        dbo.collection("image").insertOne(myobj, function(err, res) {
+          if (err) throw err;
+          console.log("1 image uploaded to mongodb");
+          db.close();
+        });
+      });
     res.end(JSON.stringify({file:imageFile}));
 });
 
