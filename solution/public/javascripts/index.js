@@ -1,21 +1,15 @@
 let userName;
 let roomNo;
-let imageUrl;
-let socket= io();
-
+let image;
 
 /**
  * called by <body onload>
  * it initialises the interface and the expected socket messages
  * plus the associated actions
  */
-async function init() {
+function init() {
 
-    // setup interface to allow user to join room
-    document.getElementById('initial_form').style.display = 'block';
-    document.getElementById('chat_interface').style.display = 'none';
-
-
+    // check for service worker support
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function(reg) {
             // registration worked
@@ -26,7 +20,6 @@ async function init() {
         });
     }
 
-
     // check for db support
     if ('indexedDB' in window) {
         initDatabase();
@@ -35,31 +28,8 @@ async function init() {
         console.log('This browser doesn\'t support IndexedDB');
     }
 
-    // load data upon reloading the page
-    await loadData();
-    getPic(null);
-
-    // socket communications
-    socket.on('joined', function(room, userId){
-        if (userId === userName) {
-            hideLoginInterface(room, userId);
-
-            localStorage.setItem('room', room);
-            localStorage.setItem('userName', userId);
-            localStorage.setItem('image', imageUrl);
-        }
-        else {
-            writeOnHistory('<b>' + userId + '</b>' + ' ' + 'joined room' + room);
-        }
-    });
-
-    socket.on('chat', function(room, userId, chatText){
-        let who = userId;
-        if (userId === userName) who = 'Me';
-        var text = '<b>' + who + '</b>' + ': ' + chatText;
-        writeOnHistory(text);
-        storeChatData(roomNo, text);
-    });
+    // load image list
+    getImgs(null);
 }
 
 /**
@@ -73,114 +43,43 @@ function generateRoom() {
 }
 
 /**
- * called when the Send button is pressed. It gets the text to send from the interface
- * and sends the message via  socket
- */
-function sendChatText() {
-    let chatText = document.getElementById('chat_input').value;
-    socket.emit('chat', roomNo, userName, chatText);
-}
-
-/**
- * used to connect to a room. It gets the user name and room number from the
- * interface
+ * used to connect to a room
+ * get input username, room number
+ * and selected image
  */
 function connectToRoom() {
     // variables definition
     roomNo = document.getElementById('roomNo').value;
     userName = document.getElementById('name').value;
     if (!userName) userName = 'Unknown-' + Math.random();
-    imageUrl= document.getElementById('image_url').value;
+    image = getSelectedImg();
 
-    // setup room interface
-    initCanvas(socket, imageUrl);
-    hideLoginInterface(roomNo, userName);
-
-    socket.emit('create or join', roomNo, userName);
+    localStorage.setItem('room', roomNo);
+    localStorage.setItem('userName', userName);
+    localStorage.setItem('image', image);
+    window.location="/room"
 }
+
+function getSelectedImg() {
+    let form = document.getElementById('loginForm');
+    let checked = form.querySelector('input[name=selected]:checked');
+    return checked.value;
+}
+
 
 /**
- * it appends the given html text to the history div
- * this is to be called when the socket receives the chat message (socket.on ('message'...)
- * @param text: the text to append
+ * called during onload()
+ * allow filtering with author
+ * retrieve all images in server
  */
-function writeOnHistory(chatText) {
-    // add new message to interface
-    if (chatText==='') return;
-    let history = document.getElementById('history');
-    let paragraph = document.createElement('p');
-    paragraph.innerHTML = chatText;
-    history.appendChild(paragraph);
-
-    // scroll to the last element
-    history.scrollTop = history.scrollHeight;
-    document.getElementById('chat_input').value = '';
-}
-
-/**
- * it hides the initial form and shows the chat
- * @param room the selected room
- * @param userId the user name
- */
-function hideLoginInterface(room, userId) {
-    document.getElementById('initial_form').style.display = 'none';
-    document.getElementById('chat_interface').style.display = 'block';
-    document.getElementById('who_you_are').innerHTML= userId;
-    document.getElementById('in_room').innerHTML= ' '+room;
-}
-
-/**
- * hides chat interface and go back to initial form
- * reset localStorage to prevent reload
- */
-function hideChatInterface() {
-    document.getElementById('initial_form').style.display = 'block';
-    document.getElementById('chat_interface').style.display = 'none';
-    localStorage.clear();
-}
-
-async function loadData() {
-    refreshChatHistory();
-
-    // re-initiate global variables and retrieve data
-    userName = localStorage.getItem('userName');
-    roomNo = localStorage.getItem('room');
-    imageUrl = localStorage.getItem('image');
-
-    if (roomNo) {
-        try {
-            hideLoginInterface(roomNo, userName);
-
-            let cachedData = await getCachedData(roomNo);
-
-            initCanvas(socket, imageUrl, cachedData.canvas, true);
-
-            for (let chat of cachedData.chatHistory) {
-                writeOnHistory(chat, userName);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-}
-
-function refreshChatHistory() {
-    if (document.getElementById('history')!=null)
-        document.getElementById('history').innerHTML='';
-}
-
-function toUpload() {
-    window.location="/upload_image"
-}
-
-function getPic(author) {
+function getImgs(author) {
     $.ajax({
         dataType: "json",
         url: '/get_image',
         data: author,
         type: "POST",
         success: function (dataR) {
-            listPic(dataR.file)
+            listImgs(dataR.file)
         },
         error: function (err) {
             console.log('Error: ' + err.status + ':' + err.statusText);
@@ -188,22 +87,33 @@ function getPic(author) {
     });
 }
 
-function listPic(blobs) {
-    let container = document.getElementById('image_container')
+/**
+ * called in getPic()
+ * show images retrieved
+ */
+function listImgs(blobs) {
+    let container = document.getElementById('imageContainer')
     for (let blob of blobs) {
         let img = document.createElement('img');
+        let radio = document.createElement('input');
         let row = document.createElement('div');
+
+        row.className = 'form-check row';
+
+        radio.className = 'form-check-input'
+        radio.setAttribute('type', 'radio')
+        radio.setAttribute('name', 'selected')
+        radio.value = blob;
 
         img.setAttribute('id', 'picture');
         img.src = blob;
-        img.onclick = function() {
-            let container = document.getElementById('picLink')
-            container.innerHTML = blob;
-        };
 
+        row.appendChild(radio);
         row.appendChild(img);
-        container.appendChild(img);
+        container.appendChild(row);
     }
 }
 
-
+function toUpload() {
+    window.location="/upload"
+}

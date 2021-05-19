@@ -73,4 +73,3 @@ function savePic(imageBlob, title, author, description) {
 function goBack() {
     window.location="/"
 }
-

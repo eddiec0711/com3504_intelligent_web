@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/room.js"></script>
+    <script src="/javascripts/canvas.js"></script>
+    <script src="/javascripts/database.js"></script>
+    <script src="/javascripts/idb.js"></script>
+</head>
+
+<body onload="initRoom()">
+    <div class="container">
+        <h2><%= title %></h2>
+        <button onclick="goBack()" class="btn">Back</button>
+
+        <h4>
+            <div id="who_you_are" style="display: inline" style="height: 10vh"></div>
+            , you are in room:
+            <div id="in_room" style="display: inline"></div>
+        </h4>
+
+
+        <div>
+            <img id="image" width="100%" crossOrigin="anonymous">
+            <canvas id="canvas"></canvas>
+            <button id="canvas-clear" class="btn">Clear</button>
+        </div>
+
+        <div id="history" style="height: 35vh" class="boxed scrolling" ></div>
+        <div id="input" style="height: 5vh" class="boxed">
+            <form onsubmit="return false;" style="width: 100%">
+                <p>
+                    <label for="name"> chat: </label>
+                    <input type="text" id="chat_input" name="chat_input" style="width: 80%">
+                    <button id="chat_send" onclick="sendChatText()">Send</button>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

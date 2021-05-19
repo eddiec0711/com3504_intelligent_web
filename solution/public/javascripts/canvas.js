@@ -9,7 +9,7 @@ let color = 'red', thickness = 4;
  * @param sckt the open socket to register events on
  * @param imageUrl teh image url to download
  */
-function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
+function initCanvas(sckt, imageBlob , reload = false) {
     let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
@@ -20,12 +20,12 @@ function initCanvas(sckt, imageUrl, imageBlob = undefined, reload = false) {
 
     if (reload) {
         console.log('loading image from indexeddb')
-        img.src = imageBlob;
     }
     else {
-        console.log('loading image from url provided')
-        img.src = imageUrl;
+        console.log('loading selected image')
     }
+
+    img.src = imageBlob
 
     // event on the canvas when the mouse is on it
     canvas.on('mousemove mousedown mouseup mouseout', function (e) {

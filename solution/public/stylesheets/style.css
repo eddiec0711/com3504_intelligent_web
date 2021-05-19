@@ -1,6 +1,6 @@
-body {
-  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
+/*body {*/
+/*  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+/*}*/
 
 a {
   color: #00B7FF;
@@ -36,6 +36,6 @@ a {
     background-color: rgba(255,0,0,.1);
 }
 #picture{
-    padding: 20px 0 10px 10px;
+    padding: 10px 0 10px 10px;
     width: 50%;
 }

@@ -14,40 +14,56 @@
     <div class="container">
         <h2><%= title %></h2>
         <form onsubmit="return false;">
-            <div class="form-group">
-                <label for="title"> Title </label>
-                <input type="text" id="title" name="title">
+
+            <div class="form-group row">
+                <div class="form-group col-md-6">
+                    <label for="title"> Title </label>
+                    <input type="text" id="title" name="title" class="form-control">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="author" class="col-form-label"> Author </label>
+                    <input type="text" id="author" name="author" class="form-control">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="author"> Author </label>
-                <input type="text" id="author" name="author">
-            </div>
+
             <div class="form-group">
                 <label for="description"> Description </label>
-                <textarea id="description" name="description" cols="40" rows="5"></textarea>
+                <textarea id="description" name="description" rows="5" class="form-control"></textarea>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="image_url"> Image (URL) </label>
+                        <input type="text" id="image_url" name="image_url" class="form-control">
+                        <button onclick="confirmImage()" class="btn">Load</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="camera" style="display:block"> Camera </label>
+                        <video id="camera" width="400px" height="300px" autoplay></video>
+                        <div>
+                            <button id="shotBtn" onclick="snapshot()" class="btn">Take picture</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Image Preview:</label>
+                    <canvas id="canvas" width="400px" height="300px" style="display:none"></canvas>
+                </div>
+
+            </div>
+
             <div class="form-group">
-                <label for="image_url"> Image (URL) </label>
-                <input type="text" id="image_url" name="image_url">
-            </div>
-            <button onclick="confirmImage()" class="btn">Load</button>
-
-            <div class="container">
-                <video id="camera" width="400px" height="300px" autoplay></video>
-                <button id="shotBtn" onclick="snapshot()" class="btn">Take picture</button>
-            </div>
-
-            <div style="float:left;width:50%">
-                <canvas id="canvas" width="400px" height="300px" style="display:none"></canvas>
-            </div>
-
-            <div style="width:100%">
-                <button onclick="uploadImage()">Upload</button>
-                <button onclick="goBack()">Go Back</button>
+                <button onclick="uploadImage()" class="btn">Upload</button>
+                <button onclick="goBack()" class="btn">Go Back</button>
             </div>
 
         </form>
     </div>
+
 </body>
 
 </html>

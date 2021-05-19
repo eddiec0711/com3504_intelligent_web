@@ -2,15 +2,24 @@ var express = require('express');
 var router = express.Router();
 var path = require('path');
 var fs = require('fs');
+var mongoose = require('mongoose');
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Image Browsing' });
 });
 
+/* GET room page. */
+router.get('/room', function(req, res, next) {
+    res.render('room', { title: 'Room' });
+});
+
 
 /* GET image upload page. */
-router.get('/upload_image', function(req, res, next) {
+router.get('/upload', function(req, res, next) {
   res.render('upload', { title: 'Upload Image' });
 });
 
@@ -57,11 +66,30 @@ router.post('/upload_image', function(req, res) {
         }
     });
 
-    // @TODO mongodb.save(imageFile, req.body.title, req.body.author, req.body.description)
-
+    // MongoClient.connect(url, function(err, db) {
+    //     if (err) throw err;
+    //     var dbo = db.db("g11");
+    //     var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
+    //     dbo.collection("image").insertOne(myobj, function(err, res) {
+    //       if (err) throw err;
+    //       console.log("1 image uploaded to mongodb");
+    //       db.close();
+    //     });
+    //   });
     res.end(JSON.stringify({file:imageFile}));
-
 });
 
-
+//Search function
+// MongoClient.connect(url, function(err, db) {
+//     if (err) throw err;
+//     var dbo = db.db("g11");
+//     var myobj = {author: req.body.author};
+//     dbo.collection("image").find(myobj, function(err, res) {
+//       if (err) throw err;
+//       console.log("1 image uploaded to mongodb");
+//       console.log(res);
+//       db.close();
+//     });
+//   });
+// res.end(JSON.stringify({file:imageFile}));
 module.exports = router;
