@@ -2,14 +2,14 @@ var express = require('express');
 var router = express.Router();
 var path = require('path');
 var fs = require('fs');
-var mongoose = require('mongoose');
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
-
+var imageController = require('../controllers/image-controller');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Image Browsing' });
+  var result;
+  imageController.listauthorimage(result);
+  console.log(result);
 });
 
 /* GET room page. */
@@ -65,31 +65,9 @@ router.post('/upload_image', function(req, res) {
             console.log(err);
         }
     });
-
-    MongoClient.connect(url, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("g11");
-        var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
-        dbo.collection("image").insertOne(myobj, function(err, res) {
-          if (err) throw err;
-          console.log("1 image uploaded to mongodb");
-          db.close();
-        });
-      });
+    imageController.uploadimage(req);
     res.end(JSON.stringify({file:imageFile}));
 });
 
-//Search function
-// MongoClient.connect(url, function(err, db) {
-//     if (err) throw err;
-//     var dbo = db.db("g11");
-//     var myobj = {author: req.body.author};
-//     dbo.collection("image").find(myobj, function(err, res) {
-//       if (err) throw err;
-//       console.log("1 image uploaded to mongodb");
-//       console.log(res);
-//       db.close();
-//     });
-//   });
-// res.end(JSON.stringify({file:imageFile}));
+
 module.exports = router;
