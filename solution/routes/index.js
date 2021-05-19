@@ -43,7 +43,7 @@ router.post('/get_image', function(req, res) {
 
     async function readImage(file) {
         let imageBase64 = await fs.readFileSync(file, 'base64')
-        let blob = "data:image/jpeg;base64," + imageBase64;
+        let blob = "data:image/jpg;base64," + imageBase64;
 
         return blob;
     }

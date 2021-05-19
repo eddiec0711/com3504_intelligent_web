@@ -65,6 +65,9 @@ async function loadData() {
             if (cachedData.canvas) {
                 initCanvas(socket, cachedData.canvas, true);
             }
+            else {
+                document.getElementById('annotation').style.display = 'none'
+            }
 
             for (let chat of cachedData.chatHistory) {
                 writeOnHistory(chat, userName);
