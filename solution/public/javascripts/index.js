@@ -54,10 +54,12 @@ function connectToRoom() {
     if (!userName) userName = 'Unknown-' + Math.random();
     image = getSelectedImg();
 
-    localStorage.setItem('room', roomNo);
-    localStorage.setItem('userName', userName);
-    localStorage.setItem('image', image);
-    window.location="/room"
+    if (roomNo) {
+        localStorage.setItem('room', roomNo);
+        localStorage.setItem('userName', userName);
+        storeImageData(roomNo, image);
+        window.location = "/room"
+    }
 }
 
 function getSelectedImg() {
@@ -98,20 +100,22 @@ function listImgs(blobs) {
         let radio = document.createElement('input');
         let row = document.createElement('div');
 
-        row.className = 'form-check row';
+        row.className = 'form-check border-bottom';
 
-        radio.className = 'form-check-input'
         radio.setAttribute('type', 'radio')
         radio.setAttribute('name', 'selected')
         radio.value = blob;
 
         img.setAttribute('id', 'picture');
+        img.width = 300;
         img.src = blob;
 
         row.appendChild(radio);
         row.appendChild(img);
         container.appendChild(row);
     }
+    $('input[name="selected"]').first().prop('checked', true)
+
 }
 
 function toUpload() {

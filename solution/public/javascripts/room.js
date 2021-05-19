@@ -50,25 +50,19 @@ function writeOnHistory(chatText) {
     document.getElementById('chat_input').value = '';
 }
 
-function refreshChatHistory() {
-    if (document.getElementById('history')!=null)
-        document.getElementById('history').innerHTML='';
-}
-
 async function loadData() {
     refreshChatHistory();
 
     // re-initiate global variables and retrieve data
     userName = localStorage.getItem('userName');
     roomNo = localStorage.getItem('room');
-    image = localStorage.getItem('image');
 
     if (roomNo) {
         try {
 
             let cachedData = await getCachedData(roomNo);
 
-            initCanvas(socket, image, true);
+            initCanvas(socket, cachedData.canvas, true);
 
             for (let chat of cachedData.chatHistory) {
                 writeOnHistory(chat, userName);
@@ -77,6 +71,11 @@ async function loadData() {
             console.log(error);
         }
     }
+}
+
+function refreshChatHistory() {
+    if (document.getElementById('history')!=null)
+        document.getElementById('history').innerHTML='';
 }
 
 function goBack() {

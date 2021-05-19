@@ -3,7 +3,8 @@
 <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -15,33 +16,48 @@
 
 <body onload="initRoom()">
     <div class="container">
-        <h2><%= title %></h2>
-        <button onclick="goBack()" class="btn">Back</button>
-
-        <h4>
-            <div id="who_you_are" style="display: inline" style="height: 10vh"></div>
-            , you are in room:
-            <div id="in_room" style="display: inline"></div>
-        </h4>
-
-
-        <div>
-            <img id="image" width="100%" crossOrigin="anonymous">
-            <canvas id="canvas"></canvas>
-            <button id="canvas-clear" class="btn">Clear</button>
+        <div class="p-2">
+            <h2><%= title %> <div id="in_room" style="display:inline-block"></div></h2>
+            <h3>Username: <div id="who_you_are" style="display:inline-block"></div></h3>
+            <button onclick="goBack()" class="btn btn-danger">Back</button>
+            <button id="canvas-clear" class="btn btn-warning">Clear</button>
         </div>
 
-        <div id="history" style="height: 35vh" class="boxed scrolling" ></div>
-        <div id="input" style="height: 5vh" class="boxed">
-            <form onsubmit="return false;" style="width: 100%">
-                <p>
-                    <label for="name"> chat: </label>
-                    <input type="text" id="chat_input" name="chat_input" style="width: 80%">
-                    <button id="chat_send" onclick="sendChatText()">Send</button>
-                </p>
-            </form>
+        <div class="row" width="100%">
+            <div class="col-md-10">
+                <img id="image" width="80%">
+                <canvas id="canvas" width="80%"></canvas>
+            </div>
+
+            <div class="col-md-2">
+                <div class="input-group" id="typeForm">
+                    <label for="myType">Type: </label>
+                    <input type="text" class="form-control" id="myType">
+                    <button class="btn btn-outline-secondary">Set type</button>
+                </div>
+                <div class="input-group" id='widget' style="display: none">
+                    <label for="myInput">Search for: </label><input type="text" id="myInput">
+                    <div class="myRow" id="typeSet"></div>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <div id="input" class="container">
+        <form onsubmit="return false;" style="width: 100%">
+            <div class="md-3">
+                <label for="chat_input" class="form-label"> chat: </label>
+                <div class="input-group">
+                    <input type="text" id="chat_input" name="chat_input" class="form-control" aria-describedby="chat_send">
+                    <button id="chat_send" class="btn btn-outline-secondary" onclick="sendChatText()">Send</button>
+                </div>
+            </div>
+        </form>
+        <div id="history" style="height: 35vh" class="boxed scrolling" ></div>
+    </div>
+
+
 </body>
 
 </html>
