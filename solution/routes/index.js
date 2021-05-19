@@ -66,16 +66,16 @@ router.post('/upload_image', function(req, res) {
         }
     });
 
-    // MongoClient.connect(url, function(err, db) {
-    //     if (err) throw err;
-    //     var dbo = db.db("g11");
-    //     var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
-    //     dbo.collection("image").insertOne(myobj, function(err, res) {
-    //       if (err) throw err;
-    //       console.log("1 image uploaded to mongodb");
-    //       db.close();
-    //     });
-    //   });
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("g11");
+        var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
+        dbo.collection("image").insertOne(myobj, function(err, res) {
+          if (err) throw err;
+          console.log("1 image uploaded to mongodb");
+          db.close();
+        });
+      });
     res.end(JSON.stringify({file:imageFile}));
 });
 
