@@ -19,10 +19,10 @@ function initCanvas(sckt, imageBlob , reload = false) {
     let ctx = cvx.getContext('2d');
 
     if (reload) {
-        console.log('loading image from indexeddb')
+        console.log('loading image from indexeddb');
     }
     else {
-        console.log('loading selected image')
+        console.log('loading selected image');
     }
 
     img.src = imageBlob
@@ -61,7 +61,6 @@ function initCanvas(sckt, imageBlob , reload = false) {
         clearCanvas(img, ctx, cvx);
         socket.emit('clear', roomNo)
         // @todo if you clear the canvas, you want to let everyone know via socket.io (socket.emit...)
-
     });
 
     // @todo here you want to capture the event on the socket when someone else is drawing on their canvas (socket.on...)

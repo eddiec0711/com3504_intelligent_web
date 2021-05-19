@@ -62,7 +62,9 @@ async function loadData() {
 
             let cachedData = await getCachedData(roomNo);
 
-            initCanvas(socket, cachedData.canvas, true);
+            if (cachedData.canvas) {
+                initCanvas(socket, cachedData.canvas, true);
+            }
 
             for (let chat of cachedData.chatHistory) {
                 writeOnHistory(chat, userName);

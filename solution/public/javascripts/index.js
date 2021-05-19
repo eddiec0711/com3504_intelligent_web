@@ -65,7 +65,9 @@ function connectToRoom() {
 function getSelectedImg() {
     let form = document.getElementById('loginForm');
     let checked = form.querySelector('input[name=selected]:checked');
-    return checked.value;
+    if (checked) {
+        return checked.value;
+    }
 }
 
 
@@ -96,6 +98,7 @@ function getImgs(author) {
 function listImgs(blobs) {
     let container = document.getElementById('imageContainer')
     for (let blob of blobs) {
+
         let img = document.createElement('img');
         let radio = document.createElement('input');
         let row = document.createElement('div');
@@ -107,15 +110,12 @@ function listImgs(blobs) {
         radio.value = blob;
 
         img.setAttribute('id', 'picture');
-        img.width = 300;
         img.src = blob;
 
         row.appendChild(radio);
         row.appendChild(img);
         container.appendChild(row);
     }
-    $('input[name="selected"]').first().prop('checked', true)
-
 }
 
 function toUpload() {

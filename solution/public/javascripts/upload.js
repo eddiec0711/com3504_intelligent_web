@@ -3,7 +3,7 @@ let canvas = null;
 let localMediaStream = null;
 let ctx;
 
-function init() {
+function initUpload() {
     camera = document.querySelector('video');
     canvas = document.querySelector('canvas');
     ctx = canvas.getContext('2d');
@@ -28,9 +28,10 @@ function confirmImage(camera) {
         let img = new Image();
         img.onload = function() {
             loadImage(img, img.width, img.height);
+            alert('Image successfully saved')
         }
+        img.crossOrigin = 'anonymous';
         img.src = document.getElementById('image_url').value
-
     }
 }
 
