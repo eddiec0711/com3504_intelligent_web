@@ -28,7 +28,6 @@ function confirmImage(camera) {
         let img = new Image();
         img.onload = function() {
             loadImage(img, img.width, img.height);
-            alert('Image successfully saved')
         }
         img.crossOrigin = 'anonymous';
         img.src = document.getElementById('image_url').value
@@ -63,10 +62,10 @@ function savePic(imageBlob, title, author, description) {
         type: "POST",
         data: data,
         success: function (dataR) {
-            console.log('Image save as ' + dataR.file);
+            alert('Image successfully saved')
         },
         error: function (err) {
-            console.log('Error: ' + err.status + ':' + err.statusText);
+            alert('Error: ' + err.status + ':' + err.statusText)
         }
     });
 }

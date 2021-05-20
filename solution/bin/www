@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('week-3.c-socket.io-chat:server');
 var http = require('http');
 var index = require('../routes/index');
+var database = require('../databases/images')
 
 app.use('/', index);
 

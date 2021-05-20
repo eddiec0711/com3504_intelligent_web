@@ -2,15 +2,14 @@ var express = require('express');
 var router = express.Router();
 var path = require('path');
 var fs = require('fs');
-var mongoose = require('mongoose');
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
+var image = require('../controllers/images');
 
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Image Browsing' });
 });
+
 
 /* GET room page. */
 router.get('/room', function(req, res, next) {
@@ -52,44 +51,8 @@ router.post('/get_image', function(req, res) {
 });
 
 
-/* POST upload image */
-router.post('/upload_image', function(req, res) {
-    let parent = __dirname + '/../';
-    let imagePath = path.join(parent, 'private_access/Images/');
-    let imageFile = imagePath + req.body.title + '.jpg'
+// /* POST upload image */
+router.post('/upload_image', image.uploadImage);
 
-    let imageBlob = req.body.imageBlob.replace(/^data:image\/\w+;base64,/, "");
-    let buf = Buffer.from(imageBlob, 'base64');
-    fs.writeFile(imageFile, buf, function(err) {
-        if (err) {
-            console.log(err);
-        }
-    });
 
-    MongoClient.connect(url, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("g11");
-        var myobj = {title: req.body.title, description: req.body.description, author: req.body.author, filepath: imageFile};
-        dbo.collection("image").insertOne(myobj, function(err, res) {
-          if (err) throw err;
-          console.log("1 image uploaded to mongodb");
-          db.close();
-        });
-      });
-    res.end(JSON.stringify({file:imageFile}));
-});
-
-//Search function
-// MongoClient.connect(url, function(err, db) {
-//     if (err) throw err;
-//     var dbo = db.db("g11");
-//     var myobj = {author: req.body.author};
-//     dbo.collection("image").find(myobj, function(err, res) {
-//       if (err) throw err;
-//       console.log("1 image uploaded to mongodb");
-//       console.log(res);
-//       db.close();
-//     });
-//   });
-// res.end(JSON.stringify({file:imageFile}));
 module.exports = router;

@@ -86,7 +86,7 @@ function getImgs(author) {
             listImgs(dataR.file)
         },
         error: function (err) {
-            console.log('Error: ' + err.status + ':' + err.statusText);
+            console.log('Error: ' + err.status + ': ' + err.statusText);
         }
     });
 }
