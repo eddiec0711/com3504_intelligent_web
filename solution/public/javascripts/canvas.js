@@ -9,7 +9,7 @@ let color = 'red', thickness = 4;
  * @param sckt the open socket to register events on
  * @param imageUrl teh image url to download
  */
-function initCanvas(sckt, image, annotation = undefined) {
+function initCanvas(sckt, image, annotated) {
     let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
@@ -18,13 +18,14 @@ function initCanvas(sckt, image, annotation = undefined) {
     let img = document.getElementById('image');
     let ctx = cvx.getContext('2d');
 
-    if (annotation) {
-        img.src = annotation;
-        console.log('loading image from indexeddb');
+    if (annotated) {
+        img.src = image.canvas;
+        console.log('reloading room');
     }
     else {
-        img.src = image;
-        console.log('loading selected image');
+        img.src = image.filepath;
+        saveAnnotation(cvx);
+        console.log('initiate room');
     }
 
     // event on the canvas when the mouse is on it
@@ -42,6 +43,8 @@ function initCanvas(sckt, image, annotation = undefined) {
         if (e.type === 'mouseup') {
             flag = false;
             saveAnnotation(cvx);
+            // allow knowledge graph input after frame drawn
+            document.getElementById('graphType').disabled = false;
         }
         // if the flag is up, the movement of the mouse draws on the canvas
         if (e.type === 'mousemove') {
@@ -110,6 +113,8 @@ function initCanvas(sckt, image, annotation = undefined) {
 function drawImageScaled(img, canvas, ctx) {
     // get the scale
     console.log(img.width, img.height, canvas.width, canvas.height)
+    img.width = canvas.width;
+    img.height = canvas.height;
     let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
     // get the top left position of the image
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -117,7 +122,6 @@ function drawImageScaled(img, canvas, ctx) {
     let y = (canvas.height / 2) - (img.height / 2) * scale;
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
-
 
 /**
  * this is called when we want to display what we (or any other connected via socket.io) draws on the canvas
@@ -133,7 +137,7 @@ function drawImageScaled(img, canvas, ctx) {
  * @param color of the line
  * @param thickness of the line
  */
-function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY, color, thickness, rect = false) {
+function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY, color, thickness) {
     //get the ration between the current canvas and the one it has been used to draw on the other computer
     let ratioX = canvas.width / canvasWidth;
     let ratioY = canvas.height / canvasHeight;
@@ -153,8 +157,11 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
 }
 
 function clearCanvas(img, ctx, cvx){
-    img.src = image;
+    clearKGData(roomNo);
+    document.getElementById('resultPanel').innerHTML = '';
+    graphs = [];
 
+    drawImageScaled(img, cvx, ctx)
     saveAnnotation(cvx);
 }
 
@@ -164,5 +171,5 @@ function clearCanvas(img, ctx, cvx){
  */
 function saveAnnotation(cvx) {
     let blob = cvx.toDataURL();
-    storeImageData(roomNo, blob);
+    storeImageData(roomNo, {canvas: blob});
 }

@@ -69,6 +69,8 @@ function addRow(row) {
 
     panel.appendChild(container);
     color = "red";
+    document.getElementById('graphType').value = '';
+    document.getElementById('graphInput').value = '';
     document.getElementById('knowledgeG').style.display = 'none';
 }
 
@@ -96,4 +98,6 @@ function queryMainEntity(id, type){
 function addKnowledgeG() {
     color = colorList[graphs.length];
     document.getElementById('knowledgeG').style.display = 'block';
+    document.getElementById('graphType').disabled = true;
+    document.getElementById('graphInput').disabled = true;
 }

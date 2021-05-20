@@ -2,6 +2,7 @@ let userName;
 let roomNo;
 let image;
 
+
 /**
  * called by <body onload>
  * it initialises the interface and the expected socket messages
@@ -45,17 +46,22 @@ function generateRoom() {
  * connect user to room
  * add simple data to localStorage
  */
-function connectToRoom() {
+async function connectToRoom() {
     // variables definition
     roomNo = document.getElementById('roomNo').value;
     userName = document.getElementById('name').value;
     if (!userName) userName = 'Unknown-' + Math.random();
-    image = getSelectedImg();
+    let imageData = getSelectedImg();
 
     if (roomNo) {
         localStorage.setItem('room', roomNo);
         localStorage.setItem('userName', userName);
-        localStorage.setItem('image', image);
+
+        if (imageData) {
+            await storeImageData(roomNo, JSON.parse(imageData));
+        }
+        await storeChatData(roomNo, []);
+
 
         window.location = "/room"
     }
@@ -122,18 +128,27 @@ function listImages(records) {
         let img = document.createElement('img');
         let radio = document.createElement('input');
         let row = document.createElement('div');
+        let label1 = document.createElement('label');
+        let label2 = document.createElement('label');
 
         row.className = 'form-check border-bottom';
 
         radio.setAttribute('type', 'radio')
         radio.setAttribute('name', 'selected')
-        radio.value = blob;
+        radio.value = JSON.stringify(record);
 
         img.setAttribute('id', 'picture');
         img.src = blob;
 
+        label1.className = 'form-label p-3';
+        label1.innerHTML = 'Title: ' + record.title;
+        label2.className = 'form-label p-3';
+        label2.innerHTML = 'Author: ' + record.author;
+
         row.appendChild(radio);
         row.appendChild(img);
+        row.appendChild(label1);
+        row.appendChild(label2);
         container.appendChild(row);
     }
 }
@@ -143,20 +158,18 @@ function listImages(records) {
  */
 function listAuthors(authors) {
     let dropdown = document.getElementById('authorList')
-    let listed = []
-    for (let record of authors) {
-        if (listed.includes(record)) {
-            continue;
-        }
+    let records = [...new Set(authors.map(a => a.author))];
+
+    for (let author of records) {
 
         let row = document.createElement('li');
         let name = document.createElement('div');
 
         name.className = "dropdown-item";
-        name.innerHTML = record.author;
+        name.innerHTML = author;
         name.onclick = function() {
-            document.getElementById('author').innerHTML = record.author;
-            getImages(record.author);
+            document.getElementById('author').innerHTML = author;
+            getImages(author);
         }
 
         row.appendChild(name);

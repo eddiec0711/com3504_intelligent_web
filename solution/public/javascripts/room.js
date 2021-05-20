@@ -1,15 +1,8 @@
 let socket = io();
-let reload = false;
 
 function initRoom() {
 
     loadData();
-
-    if (!reload) {
-        socket.emit('create or join', roomNo, userName);
-        storeImageData(roomNo, )
-        reload = true;
-    }
 
     document.getElementById('who_you_are').innerHTML = userName;
     document.getElementById('in_room').innerHTML= ' '+ roomNo;
@@ -63,20 +56,29 @@ async function loadData() {
     // re-initiate global variables and retrieve data
     userName = localStorage.getItem('userName');
     roomNo = localStorage.getItem('room');
-    image = localStorage.getItem('image');
+    socket.emit('create or join', roomNo, userName);
 
     if (roomNo) {
         try {
             let cachedData = await getCachedData(roomNo);
+            console.log(cachedData)
 
-            if (cachedData) { // annotated
-                initCanvas(socket, image, cachedData.canvas);
+            if (cachedData.image) {
+                if (cachedData.image.canvas) {
+                    initCanvas(socket, cachedData.image, true);
+                }
+                else {
+                    initCanvas(socket, cachedData.image, false);
+                }
             }
-            else if (image !== 'undefined') { // initialised
-                initCanvas(socket, image);
+            else {
+                document.getElementById('annotation').style.display = 'none';
             }
-            else { // not inserted
-                document.getElementById('annotation').style.display = 'none'
+
+            if (cachedData.chatHistory) {
+                for (let chat of cachedData.chatHistory) {
+                    writeOnHistory(chat, userName);
+                }
             }
 
             if (cachedData.kg) {
@@ -86,11 +88,6 @@ async function loadData() {
                 }
             }
 
-            if (cachedData.chatHistory) {
-                for (let chat of cachedData.chatHistory) {
-                    writeOnHistory(chat, userName);
-                }
-            }
         } catch (err) {
             console.log(err);
         }

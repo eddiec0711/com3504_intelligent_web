@@ -38,7 +38,7 @@ async function storeChatData(roomNo, chatText) {
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
-            if (record.chatHistory === undefined) {
+            if (record === undefined || record.chatHistory === undefined) {
                 record.chatHistory = [chatText];
             }
             else {
@@ -58,7 +58,7 @@ async function storeChatData(roomNo, chatText) {
  * @param roomNo
  * @param imageBlob
  */
-async function storeImageData(roomNo, imageBlob) {
+async function storeImageData(roomNo, imageData) {
     if (!G11DB)
         await initDatabase();
     if (G11DB) {
@@ -69,9 +69,9 @@ async function storeImageData(roomNo, imageBlob) {
             let record = await index.get(roomNo);
 
             if (record === undefined) {
-                await store.put({room: roomNo, canvas: imageBlob});
+                await store.put({room: roomNo, image: imageData});
             } else {
-                record.canvas = imageBlob;
+                record.image.canvas = imageData.canvas;
                 await store.put(record);
             }
 
@@ -87,7 +87,7 @@ async function storeImageData(roomNo, imageBlob) {
  * @param roomNo
  * @param chatText
  */
-async function storeKGData(roomNo, data) {
+async function storeKGData(roomNo, kgData) {
     if (!G11DB)
         await initDatabase();
     if (G11DB) {
@@ -98,10 +98,10 @@ async function storeKGData(roomNo, data) {
             let record = await index.get(roomNo);
 
             if (record.kg === undefined) {
-                record.kg = [data];
+                record.kg = [kgData];
             }
             else {
-                record.kg = record.kg.concat(data);
+                record.kg = record.kg.concat(kgData);
             }
             await store.put(record)
 
@@ -111,6 +111,32 @@ async function storeKGData(roomNo, data) {
         };
     }
 }
+
+/**
+ * clear knowledge graph
+ * @param roomNo
+ * @returns {Promise<void>}
+ */
+async function clearKGData(roomNo) {
+    if (!G11DB)
+        await initDatabase();
+    try {
+        let tx = await G11DB.transaction(CHAT_STORE_NAME, 'readwrite');
+        let store = await tx.objectStore(CHAT_STORE_NAME);
+        let index = await store.index('room');
+        let record = await index.get(roomNo);
+
+        if (record.kg) {
+            record.kg = [];
+        }
+        await store.put(record);
+
+        await tx.complete;
+    } catch(error) {
+        console.log(error);
+    }
+}
+
 
 /**
  * retrieve the chat data for a room from the database

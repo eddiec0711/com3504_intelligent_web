@@ -17,6 +17,7 @@ exports.init = function(io) {
      });
 
      socket.on('clear', function(room){
+         console.log(room + ' cleared')
          io.sockets.to(room).emit('clear', room)
      })
 
