@@ -25,6 +25,8 @@ app.use(express.urlencoded({limit: '50mb', extended: true}))
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/private_access/images', express.static(__dirname + '/private_access/images'));
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

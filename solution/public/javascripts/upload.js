@@ -51,10 +51,10 @@ function uploadImage() {
     let description = document.getElementById('description').value
 
     let imageBlob = document.getElementById('canvas').toDataURL();
-    savePic(imageBlob, title, author, description);
+    saveImage(imageBlob, title, author, description);
 }
 
-function savePic(imageBlob, title, author, description) {
+function saveImage(imageBlob, title, author, description) {
     let data = {imageBlob: imageBlob, title: title, author: author, description: description};
     $.ajax({
         dataType: "json",

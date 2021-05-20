@@ -1,7 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var path = require('path');
-var fs = require('fs');
 var image = require('../controllers/images');
 
 
@@ -24,38 +22,14 @@ router.get('/upload', function(req, res, next) {
 
 
 /* POST retrieve authors */
-router.post('/get_authors', Image.getAuthors);
+router.post('/get_authors', image.getAuthors);
 
 
-/* POST retrieve images */
-router.post('/get_image', function(req, res) {
-    let parent = __dirname + '/../';
-    let imageDir = path.join(parent, 'private_access/Images/');
-    let imageBlobs = [];
-
-    fs.readdir(imageDir, async (err, files) => {
-        files.forEach(file => {
-            readImage(imageDir + file).then(blob => {
-                imageBlobs.push(blob)
-                if (imageBlobs.length === files.length) {
-                    res.end(JSON.stringify({file: imageBlobs}));
-                }
-            }).catch(err => {
-                console.log(err);
-                imageBlobs.push(null);
-            })
-        });
-    });
-
-    async function readImage(file) {
-        let imageBase64 = await fs.readFileSync(file, 'base64')
-        let blob = "data:image/jpg;base64," + imageBase64;
-        return blob;
-    }
-});
+/* POST retrieve images using author as filter. */
+router.post('/get_images', image.getImages);
 
 
-// /* POST upload image */
+/* POST upload image */
 router.post('/upload_image', image.uploadImage);
 
 

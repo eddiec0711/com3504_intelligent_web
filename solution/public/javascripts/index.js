@@ -30,6 +30,9 @@ function init() {
 
     // load image list
     getImgs(null);
+
+    // load authors list
+    getAuthors();
 }
 
 /**
@@ -77,13 +80,15 @@ function getSelectedImg() {
  * retrieve all images in server
  */
 function getImgs(author) {
+    let data = {author: author}
     $.ajax({
         dataType: "json",
-        url: '/get_image',
-        data: author,
+        url: '/get_images',
+        data: data,
         type: "POST",
         success: function (dataR) {
-            listImgs(dataR.file)
+            listImgs(dataR)
+            console.log(dataR)
         },
         error: function (err) {
             console.log('Error: ' + err.status + ': ' + err.statusText);
@@ -95,9 +100,10 @@ function getImgs(author) {
  * called in getPic()
  * show images retrieved
  */
-function listImgs(blobs) {
+function listImgs(records) {
     let container = document.getElementById('imageContainer')
-    for (let blob of blobs) {
+    for (let record of records) {
+        let blob = record.filepath;
 
         let img = document.createElement('img');
         let radio = document.createElement('input');
@@ -115,6 +121,35 @@ function listImgs(blobs) {
         row.appendChild(radio);
         row.appendChild(img);
         container.appendChild(row);
+    }
+}
+
+function getAuthors() {
+    $.ajax({
+        dataType: "json",
+        url: '/get_authors',
+        type: "POST",
+        success: function (dataR) {
+            console.log(dataR)
+            listAuthors(dataR);
+        },
+        error: function (err) {
+            console.log('Error: ' + err.status + ': ' + err.statusText);
+        }
+    });
+}
+
+function listAuthors(authors) {
+    let dropdown = document.getElementById('authorList')
+    for (let author of authors) {
+        let row = document.createElement('li');
+        let name = document.createElement('a');
+
+        name.className = "dropdown-item";
+        name.innerHTML = author.author;
+
+        row.appendChild(name);
+        dropdown.appendChild(row);
     }
 }
 

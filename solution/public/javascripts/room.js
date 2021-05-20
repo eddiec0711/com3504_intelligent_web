@@ -1,8 +1,14 @@
-let socket = io()
+let socket = io();
+let reload = false;
 
 function initRoom() {
+
     loadData();
-    socket.emit('create or join', roomNo, userName);
+
+    if (!reload) {
+        socket.emit('create or join', roomNo, userName);
+        reload = true;
+    }
 
     document.getElementById('who_you_are').innerHTML = userName;
     document.getElementById('in_room').innerHTML= ' '+ roomNo;
@@ -85,5 +91,6 @@ function refreshChatHistory() {
 
 function goBack() {
     localStorage.clear();
-    window.location="/"
+    reload = false;
+    window.location="/";
 }

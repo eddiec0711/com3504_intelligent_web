@@ -9,7 +9,7 @@ let color = 'red', thickness = 4;
  * @param sckt the open socket to register events on
  * @param imageUrl teh image url to download
  */
-function initCanvas(sckt, imageBlob , reload = false) {
+function initCanvas(sckt, imageBlob, reload = false) {
     let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
@@ -42,16 +42,13 @@ function initCanvas(sckt, imageBlob , reload = false) {
         if (e.type === 'mouseup') {
             flag = false;
             saveAnnotation(cvx);
+            console.log('drawing emitted')
         }
         // if the flag is up, the movement of the mouse draws on the canvas
         if (e.type === 'mousemove') {
             if (flag) {
-                drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
-
-                // @todo if you draw on the canvas, you may want to let everyone know via socket.io (socket.emit...)  by sending them
-                console.log("emitting")
+                drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness, true);
                 socket.emit('draw', roomNo, userName, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
-                //get_drawing(userId, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness)
             }
         }
     });
@@ -60,13 +57,11 @@ function initCanvas(sckt, imageBlob , reload = false) {
     $(document.getElementById("canvas-clear")).on('click', function (e) {
         clearCanvas(img, ctx, cvx);
         socket.emit('clear', roomNo)
-        // @todo if you clear the canvas, you want to let everyone know via socket.io (socket.emit...)
     });
 
-    // @todo here you want to capture the event on the socket when someone else is drawing on their canvas (socket.on...)
     socket.on('draw', function(roomNo, userId, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness){
         if (userId !== userName){
-            console.log("Receiving drawing from other user")
+            console.log("Received drawing from other user")
             let ctx = canvas[0].getContext('2d');
             drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness)
         }
@@ -78,8 +73,6 @@ function initCanvas(sckt, imageBlob , reload = false) {
     socket.on('clear', function(roomNo){
         clearCanvas(img, ctx, cvx);
     });
-
-    // this is called when the src of the image is loaded
 
     // this is an async operation as it may take time
     img.addEventListener('load', () => {
@@ -102,12 +95,6 @@ function initCanvas(sckt, imageBlob , reload = false) {
                 cvx.height = canvas.height = img.clientHeight*ratio;
                 // draw the image onto the canvas
                 drawImageScaled(img, cvx, ctx);
-
-                // insert image in base64 format into indexeddb
-                if (!reload) {
-                    let imageBlob = cvx.toDataURL();
-                    storeImageData(roomNo, imageBlob);
-                }
 
                 // hide the image element as it is not needed
                 img.style.display = 'none';
@@ -168,7 +155,7 @@ function  drawImageUnscaled(img, canvas, ctx){
  * @param color of the line
  * @param thickness of the line
  */
-function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY, color, thickness) {
+function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY, color, thickness, rect = false) {
     //get the ration between the current canvas and the one it has been used to draw on the other computer
     let ratioX = canvas.width / canvasWidth;
     let ratioY = canvas.height / canvasHeight;
@@ -182,13 +169,20 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.lineTo(currX, currY);
     ctx.strokeStyle = color;
     ctx.lineWidth = thickness;
+    // if (rect) {
+    //     console.log('drawing rect')
+    //     ctx.strokeRect(prevX, prevY, currX, currY)
+    // }
+    // else {
+    console.log('drawing line')
     ctx.stroke();
+    // }
     ctx.closePath();
 }
 
 function clearCanvas(img, ctx, cvx){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawImageUnscaled(img, canvas, ctx)
+    drawImageUnscaled(img, canvas, ctx);
     saveAnnotation(cvx);
 }
 
