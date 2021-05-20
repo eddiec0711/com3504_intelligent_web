@@ -27,7 +27,7 @@
                 <div class="col-md-6">
                     <label for="roomNo" class="form-label"> Your room </label>
                     <div class="input-group">
-                        <input required type="text" id="roomNo" name="roomNo" class="form-control" aria-describedby="createRoom">
+                        <input type="text" id="roomNo" class="form-control">
                         <button onclick="generateRoom()" class="btn btn-outline-secondary" id="createRoom">Generate room number</button>
                     </div>
                 </div>
@@ -39,12 +39,8 @@
             </div>
 
             <div class="mb-3">
-                <div class="dropdown">
-                    <button class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
-                        Authors
-                    </button>
+                    <button class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" id="author">Authors</button>
                     <ul class="dropdown-menu" id="authorList"></ul>
-                </div>
             </div>
 
             <div id="picLink"></div>

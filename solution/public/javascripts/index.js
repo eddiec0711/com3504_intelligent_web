@@ -28,17 +28,13 @@ function init() {
         console.log('This browser doesn\'t support IndexedDB');
     }
 
-    // load image list
-    getImgs(null);
-
-    // load authors list
+    // load all images and authors
+    getImages(null);
     getAuthors();
 }
 
 /**
- * called to generate a random room number
- * This is a simplification. A real world implementation would ask the server to generate a unique room number
- * so to make sure that the room number is not accidentally repeated across uses
+ * generate random room number
  */
 function generateRoom() {
     roomNo = Math.round(Math.random() * 10000);
@@ -46,9 +42,8 @@ function generateRoom() {
 }
 
 /**
- * used to connect to a room
- * get input username, room number
- * and selected image
+ * connect user to room
+ * add simple data to localStorage
  */
 function connectToRoom() {
     // variables definition
@@ -66,6 +61,9 @@ function connectToRoom() {
     }
 }
 
+/**
+ * get selected image to create room
+ */
 function getSelectedImg() {
     let form = document.getElementById('loginForm');
     let checked = form.querySelector('input[name=selected]:checked');
@@ -74,13 +72,12 @@ function getSelectedImg() {
     }
 }
 
-
 /**
- * called during onload()
- * allow filtering with author
- * retrieve all images in server
+ * ajax query to retrieve list of images
+ * return all images if no author selected - called in init()
+ * @param author
  */
-function getImgs(author) {
+function getImages(author) {
     let data = {author: author}
     $.ajax({
         dataType: "json",
@@ -88,8 +85,7 @@ function getImgs(author) {
         data: data,
         type: "POST",
         success: function (dataR) {
-            listImgs(dataR)
-            console.log(dataR)
+            listImages(dataR)
         },
         error: function (err) {
             console.log('Error: ' + err.status + ': ' + err.statusText);
@@ -98,11 +94,28 @@ function getImgs(author) {
 }
 
 /**
- * called in getPic()
- * show images retrieved
+ * ajax query to retrieve list of authors in database
  */
-function listImgs(records) {
+function getAuthors() {
+    $.ajax({
+        dataType: "json",
+        url: '/get_authors',
+        type: "POST",
+        success: function (dataR) {
+            listAuthors(dataR);
+        },
+        error: function (err) {
+            console.log('Error: ' + err.status + ': ' + err.statusText);
+        }
+    });
+}
+
+/**
+ * generate interface from getImages()
+ */
+function listImages(records) {
     let container = document.getElementById('imageContainer')
+    container.innerHTML = '';
     for (let record of records) {
         let blob = record.filepath;
 
@@ -125,39 +138,35 @@ function listImgs(records) {
     }
 }
 
-function getAuthors() {
-    $.ajax({
-        dataType: "json",
-        url: '/get_authors',
-        type: "POST",
-        success: function (dataR) {
-            console.log(dataR)
-            listAuthors(dataR);
-        },
-        error: function (err) {
-            console.log('Error: ' + err.status + ': ' + err.statusText);
-        }
-    });
-}
-
+/**
+ * generate interface from getAuthors()
+ */
 function listAuthors(authors) {
     let dropdown = document.getElementById('authorList')
     let listed = []
-    for (let author of authors) {
-        if (listed.includes(author)) {
-
+    for (let record of authors) {
+        if (listed.includes(record)) {
+            continue;
         }
+
         let row = document.createElement('li');
-        let name = document.createElement('a');
+        let name = document.createElement('div');
 
         name.className = "dropdown-item";
-        name.innerHTML = author.author;
+        name.innerHTML = record.author;
+        name.onclick = function() {
+            document.getElementById('author').innerHTML = record.author;
+            getImages(record.author);
+        }
 
         row.appendChild(name);
         dropdown.appendChild(row);
     }
 }
 
+/**
+ * redirect page
+ */
 function toUpload() {
     window.location="/upload"
 }
