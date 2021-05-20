@@ -3,7 +3,16 @@ var path = require('path');
 var fs = require('fs');
 
 
-// exports.getAuthors = function (res) {
+exports.getAuthors = function (res) {
+    try {
+        Image.find({}, {author: 1, _id: 0}, function (err, authors) {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(authors));
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
 //     MongoClient.connect(url, function(err, db) {
 //     if (err) throw err;
 //     var dbo = db.db("g11");
@@ -14,7 +23,7 @@ var fs = require('fs');
 //         db.close();
 //     });
 //   });
-// }
+
 //
 // exports.getImages = function (req, res) {
     // MongoClient.connect(url, function(err, db) {

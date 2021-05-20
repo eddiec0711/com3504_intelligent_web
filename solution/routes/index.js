@@ -23,6 +23,10 @@ router.get('/upload', function(req, res, next) {
 });
 
 
+/* POST retrieve authors */
+router.post('/get_authors', Image.getAuthors);
+
+
 /* POST retrieve images */
 router.post('/get_image', function(req, res) {
     let parent = __dirname + '/../';
