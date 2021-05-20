@@ -60,7 +60,8 @@ function connectToRoom() {
     if (roomNo) {
         localStorage.setItem('room', roomNo);
         localStorage.setItem('userName', userName);
-        storeImageData(roomNo, image);
+        localStorage.setItem('image', image);
+
         window.location = "/room"
     }
 }
@@ -141,7 +142,11 @@ function getAuthors() {
 
 function listAuthors(authors) {
     let dropdown = document.getElementById('authorList')
+    let listed = []
     for (let author of authors) {
+        if (listed.includes(author)) {
+
+        }
         let row = document.createElement('li');
         let name = document.createElement('a');
 

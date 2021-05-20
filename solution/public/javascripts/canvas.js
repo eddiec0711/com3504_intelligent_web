@@ -9,7 +9,7 @@ let color = 'red', thickness = 4;
  * @param sckt the open socket to register events on
  * @param imageUrl teh image url to download
  */
-function initCanvas(sckt, imageBlob, reload = false) {
+function initCanvas(sckt, image, annotation = undefined) {
     let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
@@ -18,14 +18,14 @@ function initCanvas(sckt, imageBlob, reload = false) {
     let img = document.getElementById('image');
     let ctx = cvx.getContext('2d');
 
-    if (reload) {
+    if (annotation) {
+        img.src = annotation;
         console.log('loading image from indexeddb');
     }
     else {
+        img.src = image;
         console.log('loading selected image');
     }
-
-    img.src = imageBlob
 
     // event on the canvas when the mouse is on it
     canvas.on('mousemove mousedown mouseup mouseout', function (e) {
@@ -42,12 +42,11 @@ function initCanvas(sckt, imageBlob, reload = false) {
         if (e.type === 'mouseup') {
             flag = false;
             saveAnnotation(cvx);
-            console.log('drawing emitted')
         }
         // if the flag is up, the movement of the mouse draws on the canvas
         if (e.type === 'mousemove') {
             if (flag) {
-                drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness, true);
+                drawOnCanvas(ctx, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
                 socket.emit('draw', roomNo, userName, canvas.width, canvas.height, prevX, prevY, currX, currY, color, thickness);
             }
         }
@@ -55,7 +54,6 @@ function initCanvas(sckt, imageBlob, reload = false) {
 
     // this is code left in case you need to  provide a button clearing the canvas (it is suggested that you implement it)
     $(document.getElementById("canvas-clear")).on('click', function (e) {
-        clearCanvas(img, ctx, cvx);
         socket.emit('clear', roomNo)
     });
 
@@ -64,9 +62,6 @@ function initCanvas(sckt, imageBlob, reload = false) {
             console.log("Received drawing from other user")
             let ctx = canvas[0].getContext('2d');
             drawOnCanvas(ctx, canvasWidth, canvasHeight, x1, y1, x2, y2, color, thickness)
-        }
-        else{
-            console.log("I'm the one drawing")
         }
     });
 
@@ -80,6 +75,8 @@ function initCanvas(sckt, imageBlob, reload = false) {
         // here we wait until the height is set, then we resize the canvas based on the size of the image
         let poll = setInterval(function () {
             if (img.naturalHeight) {
+                img.style.display = 'block';
+
                 clearInterval(poll);
                 // resize the canvas
                 let ratioX=1;
@@ -95,9 +92,9 @@ function initCanvas(sckt, imageBlob, reload = false) {
                 cvx.height = canvas.height = img.clientHeight*ratio;
                 // draw the image onto the canvas
                 drawImageScaled(img, cvx, ctx);
-
                 // hide the image element as it is not needed
                 img.style.display = 'none';
+                saveAnnotation(cvx);
             }
         }, 10);
     });
@@ -111,6 +108,7 @@ function initCanvas(sckt, imageBlob, reload = false) {
  * @param ctx
  */
 function drawImageScaled(img, canvas, ctx) {
+
     // get the scale
     console.log(img.width, img.height, canvas.width, canvas.height)
     let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
@@ -119,25 +117,6 @@ function drawImageScaled(img, canvas, ctx) {
     let x = (canvas.width / 2) - (img.width / 2) * scale;
     let y = (canvas.height / 2) - (img.height / 2) * scale;
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-}
-
-/**
- * called when the image needs to be redrawn
- * @param img
- * @param canvas
- * @param ctx
- */
-function  drawImageUnscaled(img, canvas, ctx){
-    // make the image size match the canvas
-    img.width = canvas.width;
-    img.height = canvas.height;
-    // get the scale
-    let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-    // get the top left position of the image
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let x = (canvas.width/2) - (img.width/2) * scale;
-    let y = (canvas.height/2) - (img.height/2) * scale;
-    ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
 
 
@@ -169,20 +148,14 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.lineTo(currX, currY);
     ctx.strokeStyle = color;
     ctx.lineWidth = thickness;
-    // if (rect) {
-    //     console.log('drawing rect')
-    //     ctx.strokeRect(prevX, prevY, currX, currY)
-    // }
-    // else {
     console.log('drawing line')
     ctx.stroke();
-    // }
     ctx.closePath();
 }
 
 function clearCanvas(img, ctx, cvx){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawImageUnscaled(img, canvas, ctx);
+    img.src = image;
+
     saveAnnotation(cvx);
 }
 
@@ -190,7 +163,7 @@ function clearCanvas(img, ctx, cvx){
  * save annotation to indexeddb
  * @param cvx
  */
-async function saveAnnotation(cvx) {
+function saveAnnotation(cvx) {
     let blob = cvx.toDataURL();
-    await storeImageData(roomNo, blob);
+    storeImageData(roomNo, blob);
 }

@@ -32,6 +32,11 @@ function widgetInit(){
  */
 function selectItem(event){
     let row= event.row;
+    addRow(row);
+    storeKGData(roomNo, row);
+}
+
+function addRow(row) {
     let container = document.createElement('div');
     let panel = document.getElementById('resultPanel');
 
@@ -57,7 +62,7 @@ function selectItem(event){
     container.className = "pb-3 pt-3 border-bottom";
 
     panel.appendChild(container)
-    storeKGData(roomNo, row);
+    document.getElementById('knowledgeG').style.display = 'none';
 }
 
 /**
@@ -79,4 +84,8 @@ function queryMainEntity(id, type){
             $('<div>', {text: element['result']['name']}).appendTo(document.body);
         });
     });
+}
+
+function addKnowledgeG() {
+    document.getElementById('knowledgeG').style.display = 'block';
 }

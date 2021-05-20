@@ -23,45 +23,51 @@
         <h3>Username: <div id="who_you_are" style="display:inline-block"></div></h3>
         <button onclick="goBack()" class="btn btn-danger">Back</button>
 
-        <div class="row mb-3" id="annotation">
-            <div class="col-md-6">
+        <div class="row mb-3 mt-3" id="annotation">
+            <div class="col-md-6 border">
                 <div class="row">
                     <img id="image" width="100%">
                     <canvas id="canvas"></canvas>
                 </div>
-                <button id="canvas-clear" class="btn btn-warning">Clear</button>
+                <div class="d-flex justify-content-center mb-3">
+                    <button id="canvas-clear" class="btn btn-warning">Clear</button>
+                </div>
             </div>
 
-            <div class="col-md-6">
-                <div class="mb-3 mt-3 row">
-                    <div class="col-md-2">
-                        <label for="graphType" class="col-form-label">Search Type:</label>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="graphType">
+            <div class="col-md-6 border">
+                <div class="mb-3 mt-3">
+                    <button class="btn btn-success" onclick="addKnowledgeG()">Add Knowledge Graph</button>
+                </div>
+                <div class="row" id="knowledgeG" style="display:none">
+                    <div class="mb-3 row">
+                        <div class="col-md-2">
+                            <label for="graphType" class="col-form-label">Search Type:</label>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="graphType">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" onclick="widgetInit()">Confirm</button>
                         </div>
                     </div>
-                    <div class="col-auto">
-                        <button class="btn btn-outline-secondary" onclick="widgetInit()">Confirm</button>
-                    </div>
-                </div>
 
-                <div class="mb-3 row">
-                    <div class="col-md-2">
-                        <label for="myInput" class="col-form-label">Keyword:</label>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="graphInput" placeholder="Enter type first" disabled>
+                    <div class="mb-3 row">
+                        <div class="col-md-2">
+                            <label for="myInput" class="col-form-label">Keyword:</label>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="graphInput" placeholder="Enter type first" disabled>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <div id="resultPanel" class="boxed scrolling" style="height:400px"></div>
+                    <div id="resultPanel" class="overflow-auto" style="max-width: 650px; max-height: 500px"></div>
                 </div>
-
             </div>
         </div>
     </div>

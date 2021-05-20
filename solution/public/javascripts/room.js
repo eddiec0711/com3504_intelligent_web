@@ -7,6 +7,7 @@ function initRoom() {
 
     if (!reload) {
         socket.emit('create or join', roomNo, userName);
+        storeImageData(roomNo, )
         reload = true;
     }
 
@@ -62,25 +63,38 @@ async function loadData() {
     // re-initiate global variables and retrieve data
     userName = localStorage.getItem('userName');
     roomNo = localStorage.getItem('room');
+    image = localStorage.getItem('image');
 
     if (roomNo) {
+        let cachedData;
         try {
+            cachedData = await getCachedData(roomNo);
+        } catch (err) {
+            console.log(err)
+        }
 
-            let cachedData = await getCachedData(roomNo);
+        if (cachedData.canvas) { // annotated
+            initCanvas(socket, image, cachedData.canvas);
+        }
+        else if (image !== 'undefined') { // initialised
+            initCanvas(socket, image);
+        }
+        else { // not inserted
+            document.getElementById('annotation').style.display = 'none'
+        }
 
-            if (cachedData.canvas) {
-                initCanvas(socket, cachedData.canvas, true);
+        if (cachedData.kg) {
+            for (let kg of cachedData.kg) {
+                addRow(kg);
             }
-            else {
-                document.getElementById('annotation').style.display = 'none'
-            }
+        }
 
+        if (cachedData.chatHistory) {
             for (let chat of cachedData.chatHistory) {
                 writeOnHistory(chat, userName);
             }
-        } catch (error) {
-            console.log(error);
         }
+
     }
 }
 
