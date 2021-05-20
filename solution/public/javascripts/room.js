@@ -66,33 +66,33 @@ async function loadData() {
     image = localStorage.getItem('image');
 
     if (roomNo) {
-        let cachedData;
         try {
-            cachedData = await getCachedData(roomNo);
+            let cachedData = await getCachedData(roomNo);
+
+            if (cachedData) { // annotated
+                initCanvas(socket, image, cachedData.canvas);
+            }
+            else if (image !== 'undefined') { // initialised
+                initCanvas(socket, image);
+            }
+            else { // not inserted
+                document.getElementById('annotation').style.display = 'none'
+            }
+
+            if (cachedData.kg) {
+                graphs = cachedData.kg;
+                for (let kg of cachedData.kg) {
+                    addRow(kg);
+                }
+            }
+
+            if (cachedData.chatHistory) {
+                for (let chat of cachedData.chatHistory) {
+                    writeOnHistory(chat, userName);
+                }
+            }
         } catch (err) {
-            console.log(err)
-        }
-
-        if (cachedData.canvas) { // annotated
-            initCanvas(socket, image, cachedData.canvas);
-        }
-        else if (image !== 'undefined') { // initialised
-            initCanvas(socket, image);
-        }
-        else { // not inserted
-            document.getElementById('annotation').style.display = 'none'
-        }
-
-        if (cachedData.kg) {
-            for (let kg of cachedData.kg) {
-                addRow(kg);
-            }
-        }
-
-        if (cachedData.chatHistory) {
-            for (let chat of cachedData.chatHistory) {
-                writeOnHistory(chat, userName);
-            }
+            console.log(err);
         }
 
     }

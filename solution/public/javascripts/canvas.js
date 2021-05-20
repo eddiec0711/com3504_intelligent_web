@@ -108,7 +108,6 @@ function initCanvas(sckt, image, annotation = undefined) {
  * @param ctx
  */
 function drawImageScaled(img, canvas, ctx) {
-
     // get the scale
     console.log(img.width, img.height, canvas.width, canvas.height)
     let scale = Math.min(canvas.width / img.width, canvas.height / img.height);
