@@ -87,27 +87,6 @@ function addRow(row) {
 }
 
 /**
- * currently not used. left for reference
- * @param id
- * @param type
- */
-function queryMainEntity(id, type){
-    const  params = {
-        'query': mainEntityName,
-        'types': type,
-        'limit': 10,
-        'indent': true,
-        'key' : apiKey,
-    };
-    $.getJSON(service_url + '?callback=?', params, function(response) {
-        $.each(response.itemListElement, function (i, element) {
-
-            $('<div>', {text: element['result']['name']}).appendTo(document.body);
-        });
-    });
-}
-
-/**
  * managing interface
  * called upon button clicked
  */
