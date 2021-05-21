@@ -18,14 +18,13 @@ function initCanvas(sckt, image, annotated) {
     let img = document.getElementById('image');
     let ctx = cvx.getContext('2d');
 
+    console.log(image)
     if (annotated) {
         img.src = image.canvas;
         console.log('reloading room');
     }
     else {
-        console.log(image.filepath)
         img.src = image.filepath;
-        saveAnnotation(cvx);
         console.log('initiate room');
     }
 
@@ -70,7 +69,7 @@ function initCanvas(sckt, image, annotated) {
     });
 
     socket.on('clear', function(roomNo){
-        clearCanvas(img, ctx, cvx);
+        clearCanvas(img, ctx, cvx, image);
     });
 
     // this is an async operation as it may take time
@@ -79,6 +78,7 @@ function initCanvas(sckt, image, annotated) {
         // here we wait until the height is set, then we resize the canvas based on the size of the image
         let poll = setInterval(function () {
             if (img.naturalHeight) {
+                img.style.display = 'block';
                 clearInterval(poll);
                 // resize the canvas
                 let ratioX=1;
@@ -155,13 +155,11 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.closePath();
 }
 
-function clearCanvas(img, ctx, cvx){
+function clearCanvas(img, ctx, cvx, image){
     clearKGData(roomNo);
+    img.src = image.filepath;
     document.getElementById('resultPanel').innerHTML = '';
     graphs = [];
-
-    drawImageScaled(img, cvx, ctx)
-    saveAnnotation(cvx);
 }
 
 /**
@@ -171,4 +169,5 @@ function clearCanvas(img, ctx, cvx){
 function saveAnnotation(cvx) {
     let blob = cvx.toDataURL();
     storeImageData(roomNo, {canvas: blob});
+
 }

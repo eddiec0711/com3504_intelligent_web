@@ -55,7 +55,8 @@ async function connectToRoom() {
     if (imageUrl) {
         imageData = {filepath: imageUrl};
     }
-    else {
+    else if (getSelectedImg()) {
+        console.log(getSelectedImg())
         imageData = JSON.parse(getSelectedImg());
     }
 

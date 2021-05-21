@@ -1,7 +1,7 @@
 const service_url = 'https://kgsearch.googleapis.com/v1/entities:search';
 const apiKey= 'AIzaSyAG7w627q-djB4gTTahssufwNOImRqdYKM';
 let graphs = [];
-let colorList = ["green", "yellow", "blue", "purple"];
+let colorList = ["green", "yellow", "blue", "purple", "orange", "white", "black"];
 
 /**
  * it inits the widget by selecting the type from the field graphType
@@ -34,12 +34,18 @@ function widgetInit(){
  */
 function selectItem(event){
     let row= event.row;
+    // annotation - change brush color for highlight
     row.color = color;
     addRow(row);
+
     graphs.push(row);
     storeKGData(roomNo, row);
 }
 
+/**
+ * interface generating
+ * @param row
+ */
 function addRow(row) {
     let container = document.createElement('div');
     let panel = document.getElementById('resultPanel');
@@ -67,6 +73,8 @@ function addRow(row) {
     container.style.border = "thick solid " + row.color;
 
     panel.appendChild(container);
+
+    // refresh brush and interface
     color = "red";
     document.getElementById('graphType').value = '';
     document.getElementById('graphInput').value = '';
@@ -94,6 +102,10 @@ function queryMainEntity(id, type){
     });
 }
 
+/**
+ * managing interface
+ * called upon button clicked
+ */
 function addKnowledgeG() {
     color = colorList[graphs.length];
     document.getElementById('knowledgeG').style.display = 'block';
