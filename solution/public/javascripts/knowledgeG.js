@@ -37,15 +37,9 @@ function selectItem(event) {
     let row = event.row;
     row.color = color;
 
-    socket.emit('add KnowledgeG', roomNo, row);
+    socket.emit('knowledgeG', roomNo, row);
 }
 
-socket.on('add KnowledgeG', function (row) {
-    addRow(row);
-
-    graphs.push(row);
-    storeKGData(roomNo, row);
-});
 
 /**
  * interface generating

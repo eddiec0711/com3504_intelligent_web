@@ -4,7 +4,8 @@ const CHAT_DB_NAME= 'db_chatroom';
 const CHAT_STORE_NAME= 'store_chat';
 
 /**
- * it inits the database
+ * inits indexeddb
+ * called in '/'
  */
 async function initDatabase(){
     if (!G11DB) {
@@ -151,24 +152,23 @@ async function clearKGData(roomNo) {
 
 
 /**
- * retrieve the chat data for a room from the database
+ * return room data
  * @param roomNo
- * @returns {*}
+ * @returns {Promise<*>}
  */
 async function getCachedData(roomNo) {
     if (!G11DB)
         await initDatabase();
-    if (G11DB) {
+    try {
         console.log('fetching ' + roomNo);
-        try {
-            let tx = G11DB.transaction(CHAT_STORE_NAME, 'readonly');
-            let store = await tx.objectStore(CHAT_STORE_NAME);
-            let index = await store.index('room');
-            let record = await index.get(roomNo);
-            await tx.done;
-            return record;
-        } catch (error) {
-            console.log(error);
-        }
+        let tx = G11DB.transaction(CHAT_STORE_NAME, 'readonly');
+        let store = await tx.objectStore(CHAT_STORE_NAME);
+        let index = await store.index('room');
+        let record = await index.get(roomNo);
+
+        await tx.done;
+        return record;
+    } catch (error) {
+        console.log(error);
     }
 }

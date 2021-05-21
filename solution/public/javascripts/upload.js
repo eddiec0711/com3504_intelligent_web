@@ -85,10 +85,3 @@ function saveImage(imageBlob, title, author, description) {
         }
     });
 }
-
-/**
- * redirecting to homepage
- */
-function goBack() {
-    window.location="/"
-}
