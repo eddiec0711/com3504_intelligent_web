@@ -66,9 +66,9 @@ async function connectToRoom() {
         localStorage.setItem('room', roomNo);
         localStorage.setItem('userName', userName);
 
-        await storeChatData(roomNo, []);
+        await storeChatData(roomNo + userName, []);
         if (imageData) {
-            await storeImageData(roomNo, imageData);
+            await storeImageData(roomNo + userName, imageData);
         }
 
         window.location = "/room"

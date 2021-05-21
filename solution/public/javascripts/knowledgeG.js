@@ -44,7 +44,7 @@ function selectItem(event) {
 socket.on('knowledgeG', function (row) {
     addRow(row);
     graphs.push(row);
-    storeKGData(roomNo, row);
+    storeKGData(roomNo + userName, row);
 });
 
 /**
@@ -124,5 +124,5 @@ function addKnowledgeG() {
 function clearKnowledgeG() {
     document.getElementById('resultPanel').innerHTML = '';
     graphs = [];
-    clearKGData(roomNo);
+    clearKGData(roomNo + userName);
 }

@@ -175,5 +175,5 @@ function clearCanvas(img, ctx, cvx, image){
  */
 function saveAnnotation(cvx) {
     let blob = cvx.toDataURL();
-    storeImageData(roomNo, {canvas: blob});
+    storeImageData(roomNo + userName, {canvas: blob});
 }

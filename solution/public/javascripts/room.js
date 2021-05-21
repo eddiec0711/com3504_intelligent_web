@@ -23,7 +23,7 @@ function initRoom() {
         if (userId === userName) who = 'Me';
         let text = '<b>' + who + '</b>' + ': ' + chatText;
         writeOnHistory(text);
-        storeChatData(roomNo, text);
+        storeChatData(roomNo + userName, text);
     });
 
     socket.on('image', function(newImage) {
@@ -82,7 +82,7 @@ async function loadData() {
     socket.emit('create or join', roomNo, userName);
 
     try {
-        let cachedData = await getCachedData(roomNo);
+        let cachedData = await getCachedData(roomNo + userName);
         let reload = false;
 
         if (cachedData.image) {
