@@ -1,4 +1,5 @@
 let socket = io();
+let reload = false;
 
 function initRoom() {
 
@@ -50,6 +51,12 @@ function writeOnHistory(chatText) {
     document.getElementById('chat_input').value = '';
 }
 
+async function changeImg() {
+    let newImage = document.getElementById('newImageUrl').value;
+    await storeImageData(roomNo, {filepath: newImage});
+    initCanvas(socket, {filepath: newImage}, false)
+}
+
 async function loadData() {
     refreshChatHistory();
 
@@ -58,41 +65,32 @@ async function loadData() {
     roomNo = localStorage.getItem('room');
     socket.emit('create or join', roomNo, userName);
 
-    if (roomNo) {
-        try {
-            let cachedData = await getCachedData(roomNo);
-            console.log(cachedData)
-
-            if (cachedData.image) {
-                if (cachedData.image.canvas) {
-                    initCanvas(socket, cachedData.image, true);
-                }
-                else {
-                    initCanvas(socket, cachedData.image, false);
-                }
+    try {
+        let cachedData = await getCachedData(roomNo);
+        if (cachedData.image) {
+            if (cachedData.image.canvas) { // canvas loaded in indexeddb, not the first entrance
+                reload = true;
             }
-            else {
-                document.getElementById('annotation').style.display = 'none';
-            }
-
-            if (cachedData.chatHistory) {
-                for (let chat of cachedData.chatHistory) {
-                    writeOnHistory(chat, userName);
-                }
-            }
-
-            if (cachedData.kg) {
-                graphs = cachedData.kg;
-                for (let kg of cachedData.kg) {
-                    addRow(kg);
-                }
-            }
-
-        } catch (err) {
-            console.log(err);
+            initCanvas(socket, cachedData.image, reload);
         }
 
+        if (cachedData.chatHistory) {
+            for (let chat of cachedData.chatHistory) {
+                writeOnHistory(chat, userName);
+            }
+        }
+
+        if (cachedData.kg) {
+            graphs = cachedData.kg;
+            for (let kg of cachedData.kg) {
+                addRow(kg);
+            }
+        }
+
+    } catch (err) {
+        console.log(err);
     }
+
 }
 
 function refreshChatHistory() {
@@ -102,6 +100,5 @@ function refreshChatHistory() {
 
 function goBack() {
     localStorage.clear();
-    reload = false;
     window.location="/";
 }

@@ -23,6 +23,7 @@ function initCanvas(sckt, image, annotated) {
         console.log('reloading room');
     }
     else {
+        console.log(image.filepath)
         img.src = image.filepath;
         saveAnnotation(cvx);
         console.log('initiate room');
@@ -78,8 +79,6 @@ function initCanvas(sckt, image, annotated) {
         // here we wait until the height is set, then we resize the canvas based on the size of the image
         let poll = setInterval(function () {
             if (img.naturalHeight) {
-                img.style.display = 'block';
-
                 clearInterval(poll);
                 // resize the canvas
                 let ratioX=1;

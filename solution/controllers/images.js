@@ -2,18 +2,6 @@ const Image = require('../models/images');
 var path = require('path');
 var fs = require('fs');
 
-
-exports.getAuthors = function (req, res) {
-    try {
-        Image.find({}, {author: 1, _id: 0}, function (err, authors) {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(authors));
-        })
-    } catch (err) {
-        console.log(err)
-    }
-}
-
 exports.getImages = function (req, res) {
     let filter;
     if (req.body.author) {

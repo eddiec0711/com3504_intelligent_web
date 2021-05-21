@@ -21,10 +21,6 @@ router.get('/upload', function(req, res, next) {
 });
 
 
-/* POST retrieve authors */
-router.post('/get_authors', image.getAuthors);
-
-
 /* POST retrieve images using author as filter. */
 router.post('/get_images', image.getImages);
 

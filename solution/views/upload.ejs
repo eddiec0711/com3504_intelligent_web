@@ -33,15 +33,6 @@
             <div class="mb-3 row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="image_url" class="form-label"> Image (URL) </label>
-                        <div class="input-group">
-                            <input placeholder="e.g. https://..." type="text" id="image_url" class="form-control">
-                            <button onclick="confirmImage()" class="btn btn-outline-secondary">Load</button>
-                        </div>
-                        <div id="instruction" class="form-text">Load image before uploading</div>
-                    </div>
-
-                    <div class="mb-3">
                         <label for="camera" class="form-label"> Camera </label>
                         <video id="camera" width="100%" autoplay></video>
                         <div>
@@ -52,7 +43,7 @@
 
                 <div class="col-md-6">
                     <label>Image Preview:</label>
-                    <canvas id="canvas" width="350px" height="300px" style="display:block"></canvas>
+                    <canvas id="canvas" width="500px" height="400px" style="display:block"></canvas>
                 </div>
             </div>
 

@@ -3,7 +3,6 @@ const apiKey= 'AIzaSyAG7w627q-djB4gTTahssufwNOImRqdYKM';
 let graphs = [];
 let colorList = ["green", "yellow", "blue", "purple"];
 
-
 /**
  * it inits the widget by selecting the type from the field graphType
  * and it displays the Google Graph widget

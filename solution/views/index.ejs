@@ -21,19 +21,25 @@
             <div class="mb-3 row">
                 <div class="col-md-6">
                     <label for="name" class="form-label"> Your name </label>
-                    <input type="text" id="name" name="name" class="form-control">
+                    <input type="text" id="name" class="form-control">
                 </div>
 
                 <div class="col-md-6">
                     <label for="roomNo" class="form-label"> Your room </label>
                     <div class="input-group">
                         <input type="text" id="roomNo" class="form-control">
-                        <button onclick="generateRoom()" class="btn btn-outline-secondary" id="createRoom">Generate room number</button>
+                        <button onclick="generateRoom()" class="btn btn-outline-secondary">Generate room number</button>
                     </div>
                 </div>
             </div>
 
             <div class="mb-3">
+                <label for="imageUrl" class="form-label">Image URL</label>
+                <input type="text" id="imageUrl" class="form-control">
+                <div class="form-text">Image selected will be ignored if url is inserted</div>
+            </div>
+
+            <div class="mb-3 mt-3">
                 <button id="connect" onclick="connectToRoom()" class="btn btn-primary">Enter room</button>
                 <button onclick="toUpload()" class="btn btn-outline-primary">Upload Image</button>
             </div>
@@ -45,10 +51,6 @@
 
             <div id="picLink"></div>
             <div id="imageContainer" class="form-check">
-                <div id="imageRow">
-                    <input type="radio" name="selectedImg">
-<!--                    <img id="picture">-->
-                </div>
             </div>
         </form>
     </div>

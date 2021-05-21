@@ -31,7 +31,6 @@ function init() {
 
     // load all images and authors
     getImages(null);
-    getAuthors();
 }
 
 /**
@@ -51,19 +50,28 @@ async function connectToRoom() {
     roomNo = document.getElementById('roomNo').value;
     userName = document.getElementById('name').value;
     if (!userName) userName = 'Unknown-' + Math.random();
-    let imageData = getSelectedImg();
+    let imageUrl = document.getElementById('imageUrl').value
+    let imageData;
+    if (imageUrl) {
+        imageData = {filepath: imageUrl};
+    }
+    else {
+        imageData = JSON.parse(getSelectedImg());
+    }
 
     if (roomNo) {
         localStorage.setItem('room', roomNo);
         localStorage.setItem('userName', userName);
 
         if (imageData) {
-            await storeImageData(roomNo, JSON.parse(imageData));
+            await storeImageData(roomNo, imageData);
         }
         await storeChatData(roomNo, []);
 
-
         window.location = "/room"
+    }
+    else {
+        alert('Room number missing')
     }
 }
 
@@ -79,7 +87,7 @@ function getSelectedImg() {
 }
 
 /**
- * ajax query to retrieve list of images
+ * ajax query to retrieve image records
  * return all images if no author selected - called in init()
  * @param author
  */
@@ -92,23 +100,9 @@ function getImages(author) {
         type: "POST",
         success: function (dataR) {
             listImages(dataR)
-        },
-        error: function (err) {
-            console.log('Error: ' + err.status + ': ' + err.statusText);
-        }
-    });
-}
-
-/**
- * ajax query to retrieve list of authors in database
- */
-function getAuthors() {
-    $.ajax({
-        dataType: "json",
-        url: '/get_authors',
-        type: "POST",
-        success: function (dataR) {
-            listAuthors(dataR);
+            if (!author) {
+                listAuthors(dataR);
+            }
         },
         error: function (err) {
             console.log('Error: ' + err.status + ': ' + err.statusText);
@@ -154,7 +148,7 @@ function listImages(records) {
 }
 
 /**
- * generate interface from getAuthors()
+ * generate interface from list of authors
  */
 function listAuthors(authors) {
     let dropdown = document.getElementById('authorList')
