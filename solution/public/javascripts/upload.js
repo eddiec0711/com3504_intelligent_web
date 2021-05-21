@@ -85,3 +85,8 @@ function saveImage(imageBlob, title, author, description) {
         }
     });
 }
+
+function goBack() {
+    localStorage.clear();
+    window.location="/";
+}
