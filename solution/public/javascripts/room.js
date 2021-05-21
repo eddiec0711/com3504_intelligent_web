@@ -22,6 +22,7 @@ function initRoom() {
         writeOnHistory(text);
         storeChatData(roomNo, text);
     });
+    console.log(socket)
 }
 
 /**

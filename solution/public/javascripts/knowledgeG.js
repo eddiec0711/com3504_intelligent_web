@@ -26,21 +26,26 @@ function widgetInit(){
         alert('Set the type please');
         document.getElementById('typeSet').innerHTML= '';
     }
+
 }
 
 /**
  * callback called when an element in the widget is selected
  * @param event the Google Graph widget event {@link https://developers.google.com/knowledge-graph/how-tos/search-widget}
  */
-function selectItem(event){
-    let row= event.row;
-    // annotation - change brush color for highlight
+function selectItem(event) {
+    let row = event.row;
     row.color = color;
+
+    socket.emit('add KnowledgeG', roomNo, row);
+}
+
+socket.on('add KnowledgeG', function (row) {
     addRow(row);
 
     graphs.push(row);
     storeKGData(roomNo, row);
-}
+});
 
 /**
  * interface generating
