@@ -1,16 +1,3 @@
-// this.addEventListener('install', function(event) {
-//     event.waitUntil(
-//         caches.open('v1').then(function(cache) {
-//             return cache.addAll([
-//                 '/'
-//             ]);
-//         })
-//     );
-// });
-//
-//
-//
-
 var CACHE_NAME = 'my-site-cache-v1';
 var urlsToCache =
     [
@@ -21,6 +8,8 @@ var urlsToCache =
     'javascripts/idb.js',
     'javascripts/upload.js',
     'javascripts/index.js',
+    'javascripts/knowledgeG.js',
+    'javascripts/room.js',
     'stylesheets/style.css'
 ];
 
@@ -37,12 +26,26 @@ self.addEventListener('install', function (event) {
 
 self.addEventListener('fetch', function(event) {
     event.respondWith(
-// it checks if the requested page is among the cached ones
         caches.match(event.request)
             .then(function(response) {
-// Cache hit - return the cache response (the cached page)
                 if (response) {
-                    return response;
-                } //cache does not have the page — go to the server
-                return fetch(event.request);
-            }) );});
+                    return response;     // if valid response is found in cache return it
+                } else {
+                    return fetch(event.request)     //fetch from internet
+                        .then(function(res) {
+                            return caches.open(CACHE_NAME)
+                                .then(function(cache) {
+                                    cache.put(event.request.url, res.clone());    //save the response for future
+                                    return res;   // return the fetched data
+                                })
+                        })
+                        .catch(function(err) {       // fallback mechanism
+                            return caches.open(CACHE_NAME)
+                                .then(function(cache) {
+                                    console.log("Cache fall back as internet fetch failed");
+                                });
+                        });
+                }
+            })
+    );
+});
