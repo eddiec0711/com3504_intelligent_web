@@ -2,6 +2,7 @@ let camera;
 let canvas;
 let localMediaStream;
 let ctx;
+let shot = false;
 
 /**
  * called by body onload in /upload
@@ -28,37 +29,21 @@ function snapshot() {
 }
 
 /**
- * load captured picture or imageUrl to canvas
+ * load captured picture to canvas
  * @param camera
  */
 function confirmImage(camera) {
-    if (camera) {
-        loadImage(camera, camera.videoWidth, camera.videoHeight);
-    }
-    else {
-        let img = new Image();
-        img.onload = function() {
-            loadImage(img, img.width, img.height);
-        }
-        img.crossOrigin = 'anonymous';
-        img.src = document.getElementById('image_url').value
-    }
-}
+    let elemW = camera.videoWidth
+    let elemH = camera.videoHeight
 
-/**
- * render canvas using supplied information
- * @param elem
- * @param elemW
- * @param elemH
- */
-function loadImage(elem, elemW, elemH) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let scale = Math.min(canvas.width / elemW, canvas.height / elemH);
     // get the top left position of the image
     let x = (canvas.width / 2) - (elemW / 2) * scale;
     let y = (canvas.height / 2) - (elemH / 2) * scale;
-    ctx.drawImage(elem, x, y, elemW * scale, elemH * scale);
+    ctx.drawImage(camera, x, y, elemW * scale, elemH * scale);
+    shot = true;
 }
 
 /**
@@ -68,8 +53,14 @@ function uploadImage() {
     let title = document.getElementById('title').value
     let author = document.getElementById('author').value
     let description = document.getElementById('description').value
+
     let imageBlob = document.getElementById('canvas').toDataURL();
-    saveImage(imageBlob, title, author, description);
+    if (shot) { // if image taken
+        saveImage(imageBlob, title, author, description);
+    }
+    else {
+        alert("Picture missing");
+    }
 }
 
 /**
@@ -87,7 +78,7 @@ function saveImage(imageBlob, title, author, description) {
         type: "POST",
         data: data,
         success: function (dataR) {
-            alert('Image successfully saved')
+            alert('Image successfully saved as ' + dataR.filepath )
         },
         error: function (err) {
             alert('Error: ' + err.status + ':' + err.statusText)

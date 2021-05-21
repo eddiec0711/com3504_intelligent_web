@@ -19,12 +19,13 @@ async function initDatabase(){
                 }
             }
         });
-        console.log('G11DB created');
+        console.log('G11 indexedDB created');
     }
 }
 
 /**
  * store chat data
+ * initialise room when user enter one
  * @param roomNo
  * @param chatText
  */
@@ -38,15 +39,16 @@ async function storeChatData(roomNo, chatText) {
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
-            if (record === undefined || record.chatHistory === undefined) {
-                record.chatHistory = [chatText];
+            if (!record) {
+                record = {room: roomNo, chatHistory: []};
             }
             else {
                 record.chatHistory = record.chatHistory.concat(chatText);
             }
-            await store.put(record)
+            console.log(record);
 
-            await tx.complete;
+            await store.put(record)
+            await tx.done;
         } catch(error) {
             console.log(error);
         };
@@ -54,9 +56,16 @@ async function storeChatData(roomNo, chatText) {
 }
 
 /**
- * store image
+ * initialise image when user enter room
+ * - detailed data from server / image url
+ *
+ * or
+ *
+ * update image canvas when user draw
+ * - canvas (annotated image)
+ *
  * @param roomNo
- * @param imageBlob
+ * @param imageData
  */
 async function storeImageData(roomNo, imageData) {
     if (!G11DB)
@@ -68,14 +77,16 @@ async function storeImageData(roomNo, imageData) {
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
-            if (record === undefined) {
-                await store.put({room: roomNo, image: imageData});
-            } else {
-                record.image.canvas = imageData.canvas;
-                await store.put(record);
+            if (!record.image) {
+                record.image = imageData;
             }
+            else {
+                record.image.canvas = imageData.canvas;
+            }
+            console.log(record);
 
-            await tx.complete;
+            await store.put(record);
+            await tx.done;
         } catch (error) {
             console.log(error);
         }
@@ -97,15 +108,16 @@ async function storeKGData(roomNo, kgData) {
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
-            if (record.kg === undefined) {
+            if (!record.kg) {
                 record.kg = [kgData];
             }
             else {
                 record.kg = record.kg.concat(kgData);
             }
-            await store.put(record)
+            console.log(record)
 
-            await tx.complete;
+            await store.put(record)
+            await tx.done;
         } catch(error) {
             console.log(error);
         };
@@ -131,7 +143,7 @@ async function clearKGData(roomNo) {
         }
         await store.put(record);
 
-        await tx.complete;
+        await tx.done;
     } catch(error) {
         console.log(error);
     }
@@ -153,7 +165,7 @@ async function getCachedData(roomNo) {
             let store = await tx.objectStore(CHAT_STORE_NAME);
             let index = await store.index('room');
             let record = await index.get(roomNo);
-            await tx.complete;
+            await tx.done;
             return record;
         } catch (error) {
             console.log(error);

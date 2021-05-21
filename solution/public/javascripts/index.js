@@ -51,23 +51,25 @@ async function connectToRoom() {
     userName = document.getElementById('name').value;
     if (!userName) userName = 'Unknown-' + Math.random();
     let imageUrl = document.getElementById('imageUrl').value
+
+    // load image information to init indexeddb
     let imageData;
-    if (imageUrl) {
+    if (imageUrl) { // url supplied
         imageData = {filepath: imageUrl};
     }
-    else if (getSelectedImg()) {
-        console.log(getSelectedImg())
+    else if (getSelectedImg()) { // chosen server image
         imageData = JSON.parse(getSelectedImg());
     }
 
     if (roomNo) {
+        // key values stored in localStorage temporarily
         localStorage.setItem('room', roomNo);
         localStorage.setItem('userName', userName);
 
+        await storeChatData(roomNo, []);
         if (imageData) {
             await storeImageData(roomNo, imageData);
         }
-        await storeChatData(roomNo, []);
 
         window.location = "/room"
     }
@@ -112,7 +114,7 @@ function getImages(author) {
 }
 
 /**
- * generate interface from getImages()
+ * generate row interface from getImages()
  */
 function listImages(records) {
     let container = document.getElementById('imageContainer')
@@ -149,7 +151,7 @@ function listImages(records) {
 }
 
 /**
- * generate interface from list of authors
+ * generate dropdown interface for author list
  */
 function listAuthors(authors) {
     let dropdown = document.getElementById('authorList')

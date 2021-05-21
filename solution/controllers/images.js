@@ -13,51 +13,51 @@ exports.getImages = function (req, res) {
 
     try {
         Image.find(filter, function (err, images) {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(images));
+            if (err) {
+                res.status(400).send(err);
+            }
+            else {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify(images));
+            }
         })
     } catch (err) {
-        console.log(err)
+        res.status(500).send(err);
     }
 }
 
 exports.uploadImage = function (req, res) {
     let imageData = req.body;
 
-    writeFile(imageData, res)
     try {
         let image = new Image({
             title: imageData.title,
             description: imageData.description,
             author: imageData.author,
-            filepath: '/private_access/images/' + imageData.title + '.jpg'
+            filepath: '/private_access/images/' + imageData.author + "_" + imageData.title + '.jpg'
         });
 
         image.save(function (err, results) {
             if (err) {
-                res.status(500).send(err);
+                res.status(400).send(err);
             }
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(image));
+            else {
+                writeFile(imageData, res)
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify(image));
+            }
         });
     } catch (err) {
         res.status(500).send(err);
     }
 }
 
-function writeFile(imageData, res) {
+function writeFile(imageData) {
     let parent = __dirname + '/../';
     let imagePath = path.join(parent, 'private_access/images/');
-    if (imageData.title == null || imageData.imageBlob == null) {
-        res.status(403).send('Image information missing')
-    }
+    let imageFile = imagePath + imageData.author + "_" + imageData.title + '.jpg'
 
-    let imageFile = imagePath + imageData.title + '.jpg'
     let imageBlob = imageData.imageBlob.replace(/^data:image\/\w+;base64,/, "");
     let buf = Buffer.from(imageBlob, 'base64');
-    fs.writeFile(imageFile, buf, function(err) {
-        if (err) {
-            res.status(500).send('error ' + err);
-        }
-    });
+    fs.writeFileSync(imageFile, buf)
 }
