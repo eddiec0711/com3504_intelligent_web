@@ -5,7 +5,7 @@ const CHAT_STORE_NAME= 'store_chat';
 
 /**
  * inits indexeddb
- * called in '/'
+ * called in homepage
  */
 async function initDatabase(){
     if (!G11DB) {
@@ -49,7 +49,7 @@ async function storeChatData(roomNo, chatText) {
             console.log(record);
 
             await store.put(record)
-            await tx.done;
+            await tx.complete;
         } catch(error) {
             console.log(error);
         };
@@ -78,7 +78,10 @@ async function storeImageData(roomNo, imageData) {
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
-            if (!record.image) {
+            if (!record) {
+                record = {room: roomNo, image: imageData}
+            }
+            else if (!record.image) {
                 record.image = imageData;
             }
             else {
@@ -87,7 +90,7 @@ async function storeImageData(roomNo, imageData) {
             console.log(record);
 
             await store.put(record);
-            await tx.done;
+            await tx.complete;
         } catch (error) {
             console.log(error);
         }
@@ -109,6 +112,9 @@ async function storeKGData(roomNo, kgData) {
             let index = await store.index('room');
             let record = await index.get(roomNo);
 
+            if (!record) {
+                record = {room: roomNo, kg: kgData};
+            }
             if (!record.kg) {
                 record.kg = [kgData];
             }
@@ -118,7 +124,7 @@ async function storeKGData(roomNo, kgData) {
             console.log(record)
 
             await store.put(record)
-            await tx.done;
+            await tx.complete;
         } catch(error) {
             console.log(error);
         };
@@ -142,9 +148,9 @@ async function clearKGData(roomNo) {
         if (record.kg) {
             record.kg = [];
         }
-        await store.put(record);
 
-        await tx.done;
+        await store.put(record);
+        await tx.complete;
     } catch(error) {
         console.log(error);
     }
@@ -166,7 +172,7 @@ async function getCachedData(roomNo) {
         let index = await store.index('room');
         let record = await index.get(roomNo);
 
-        await tx.done;
+        await tx.complete;
         return record;
     } catch (error) {
         console.log(error);

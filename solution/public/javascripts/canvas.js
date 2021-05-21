@@ -9,7 +9,7 @@ let color = 'red', thickness = 4;
  * @param sckt the open socket to register events on
  * @param imageUrl teh image url to download
  */
-function initCanvas(sckt, image, annotated) {
+function initCanvas(sckt, image, reload) {
     let socket = sckt;
     let flag = false,
         prevX, prevY, currX, currY = 0;
@@ -18,8 +18,7 @@ function initCanvas(sckt, image, annotated) {
     let img = document.getElementById('image');
     let ctx = cvx.getContext('2d');
 
-    console.log(image)
-    if (annotated) {
+    if (reload) {
         img.src = image.canvas;
         console.log('reloading room');
     }
@@ -43,7 +42,7 @@ function initCanvas(sckt, image, annotated) {
         if (e.type === 'mouseup') {
             flag = false;
             saveAnnotation(cvx);
-            // allow knowledge graph input after frame drawn
+            // enable knowledge graph input after frame drawn
             document.getElementById('graphType').disabled = false;
         }
         // if the flag is up, the movement of the mouse draws on the canvas
@@ -68,7 +67,7 @@ function initCanvas(sckt, image, annotated) {
         }
     });
 
-    socket.on('clear', function(roomNo){
+    socket.on('clear', function(){
         clearCanvas(img, ctx, cvx, image);
     });
 
@@ -155,11 +154,19 @@ function drawOnCanvas(ctx, canvasWidth, canvasHeight, prevX, prevY, currX, currY
     ctx.closePath();
 }
 
+/**
+ * clear annotations
+ * @param img
+ * @param ctx
+ * @param cvx
+ * @param image
+ */
 function clearCanvas(img, ctx, cvx, image){
-    clearKGData(roomNo);
+    // reset image
     img.src = image.filepath;
-    document.getElementById('resultPanel').innerHTML = '';
-    graphs = [];
+
+    // reset knowledge graph panel
+    clearKnowledgeG();
 }
 
 /**
@@ -169,5 +176,4 @@ function clearCanvas(img, ctx, cvx, image){
 function saveAnnotation(cvx) {
     let blob = cvx.toDataURL();
     storeImageData(roomNo, {canvas: blob});
-
 }

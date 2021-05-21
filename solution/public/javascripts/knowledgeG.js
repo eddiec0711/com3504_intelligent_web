@@ -4,9 +4,8 @@ let graphs = [];
 let colorList = ["green", "yellow", "blue", "purple", "orange", "white", "black"];
 
 /**
- * it inits the widget by selecting the type from the field graphType
- * and it displays the Google Graph widget
- * it also hides the form to get the type
+ * init the widget by selecting the type from the field graphType
+ * and enables the Google Graph widget input
  */
 function widgetInit(){
     let type= document.getElementById("graphType").value;
@@ -23,10 +22,8 @@ function widgetInit(){
         document.getElementById('graphInput').placeholder = '';
     }
     else {
-        alert('Set the type please');
-        document.getElementById('typeSet').innerHTML= '';
+        alert('Annotate frame before searching')
     }
-
 }
 
 /**
@@ -34,12 +31,21 @@ function widgetInit(){
  * @param event the Google Graph widget event {@link https://developers.google.com/knowledge-graph/how-tos/search-widget}
  */
 function selectItem(event) {
+    // change and store brush color for highlighting
     let row = event.row;
     row.color = color;
 
     socket.emit('knowledgeG', roomNo, row);
 }
 
+/**
+ * receive knowledge graph
+ */
+socket.on('knowledgeG', function (row) {
+    addRow(row);
+    graphs.push(row);
+    storeKGData(roomNo, row);
+});
 
 /**
  * interface generating
@@ -110,4 +116,13 @@ function addKnowledgeG() {
     document.getElementById('knowledgeG').style.display = 'block';
     document.getElementById('graphType').disabled = true;
     document.getElementById('graphInput').disabled = true;
+}
+
+/**
+ * reset knowledge graph panel
+ */
+function clearKnowledgeG() {
+    document.getElementById('resultPanel').innerHTML = '';
+    graphs = [];
+    clearKGData(roomNo);
 }

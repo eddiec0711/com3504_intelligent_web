@@ -16,14 +16,19 @@ exports.init = function(io) {
          io.sockets.to(room).emit('draw', room, userId, canvasWidth, canvasHeight, x1, y21, x2, y2, color, thickness);
      });
 
-    socket.on('add KnowledgeG', function(room, data){
-        console.log("socket receiving - knowledge graph")
-        io.sockets.to(room).emit('add KnowledgeG', data);
-    });
+     socket.on('knowledgeG', function(room, graph){
+         console.log("socket receiving - knowledge graph")
+         io.sockets.to(room).emit('knowledgeG', graph);
+     });
+
+     socket.on('image', function(room, image){
+         console.log("socket receiving - image")
+         io.sockets.to(room).emit('image', image);
+     });
 
      socket.on('clear', function(room){
          console.log(room + ' cleared')
-         io.sockets.to(room).emit('clear', room)
+         io.sockets.to(room).emit('clear')
      })
 
      socket.on('disconnect', function (){

@@ -26,11 +26,11 @@ function initRoom() {
         storeChatData(roomNo, text);
     });
 
-    socket.on('knowledgeG', function (row) {
-        addRow(row);
-        graphs.push(row);
-        storeKGData(roomNo, row);
-    });
+    socket.on('image', function(newImage) {
+        initCanvas(socket, {filepath: newImage}, false);
+        clearKnowledgeG();
+    })
+
 }
 
 /**
@@ -65,9 +65,8 @@ function writeOnHistory(chatText) {
  * @returns {Promise<void>}
  */
 async function changeImg() {
-    let newImage = document.getElementById('newImageUrl').value;
-    await storeImageData(roomNo, {filepath: newImage});
-    initCanvas(socket, {filepath: newImage}, false)
+    let newImage = document.getElementById('newImageUrl');
+    socket.emit('image', roomNo, newImage.value);
 }
 
 /**
@@ -80,6 +79,7 @@ async function loadData() {
     // re-initiate global variables and retrieve data
     userName = localStorage.getItem('userName');
     roomNo = localStorage.getItem('room');
+    socket.emit('create or join', roomNo, userName);
 
     try {
         let cachedData = await getCachedData(roomNo);
@@ -88,9 +88,6 @@ async function loadData() {
         if (cachedData.image) {
             if (cachedData.image.canvas) { // canvas loaded in indexeddb, not the first entrance
                 reload = true;
-            }
-            else {
-                socket.emit('create or join', roomNo, userName);
             }
             initCanvas(socket, cachedData.image, reload);
         }
